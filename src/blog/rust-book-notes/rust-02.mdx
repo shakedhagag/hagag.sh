@@ -1,0 +1,79 @@
+---
+title: "Programming a guessing game"
+date: "2025-01-16"
+spoiler: "Chapter 2 - Learning about the standard library, through a small guessing game 🕹️"
+group: "rust-book-notes"
+---
+
+To obtain user input we need to bring the io library into scope. This lib comes out of the standard library called `std`:
+
+```rust
+use std::io
+```
+
+by default, rust has a set of items defined in the std that it brings into the scope of every program, these can be found here:
+[std::prelude](https://doc.rust-lang.org/std/prelude/index.html)
+and it is called the prelude.
+
+If a type you want to use is not in the prelude, you have to bring that type into scope explicitly with a use statement.
+
+```rust
+use std::io;
+
+
+fn main() {
+    println!("Guess the number!");
+
+    println!("Please input your guess.");
+
+    let mut guess = String::new();
+
+    io::stdin()
+        .read_line(&mut guess)
+        .expect("Failed to read line");
+
+    println!("You guessed: {}", guess);
+}
+
+```
+
+- `String` - is a string type provided by the standard lib that is a growable, UTF-8 encoded bit of text.
+- The `::` syntax in the `::new` line indicated that new is an associated function of the String type. An "associated function" is a fucntion that's implemented on a type, in this case, String.
+
+> Useful command `cargo doc --open` builds a documentation website that consists of all the packages the project is using.
+
+### Generating a Random Number
+
+```rust
+use rand::Rng;
+
+let number = rand::thread_rng().gen_range(1..=100);
+```
+
+the first line, brings the package to scope, (after adding it to the dependencies under the `cargo.toml` file)
+
+the `Rng` is a [trait](https://doc.rust-lang.org/book/ch10-02-traits.html).
+
+the second line, consists of several things:
+
+1. `rand::thread_rng()` - this is a function that gives us the particular random generator that is local to the current thread, and seeded by the os.
+2. `gen_range` - a method that takes a range expression as an arguemnt and generates a random number in that range.
+
+### Comparing
+
+`use std::cmp::Ordering` - this line brings a type called Ordering into scope from the std lib. Its another enum that has the variants Less, Greater, and Equal.
+
+```rust
+match guess.cmp(&secret_number) {
+	Ordering::Less => println!("Too small!")
+	Ordering::Greater => println!("Too big!")
+	Ordering::Equal => println!("You win!")
+}
+```
+
+> A match expression is made out of 'arms' an arm consists of a pattern to match against, and the code that should be run if the value given to match each arm's pattern in turn.
+
+    let guess: u32 = guess.trim().parse().expect("Please type a number!");
+
+this line serves as a shadowing of the guess variable we declared earlier, it takes the guess, trims the whitespace around it and parses it to be a u32 integer. if an error occurs during this process the executable will crash with an error. "Please type a number".
+(this means parse, return a Result type, which has 2 variants, Err and Ok)

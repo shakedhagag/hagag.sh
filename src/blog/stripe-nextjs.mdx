@@ -1,0 +1,275 @@
+---
+title: "Integrating Stripe Payments"
+date: "2024-10-28"
+spoiler: "A guide to integrating stripe payments to your nextjs app"
+---
+
+**This guide is still a work in progress**
+
+Stripe is a payment processing platform that allows you to accept payments online and in mobile apps. It is a popular choice for businesses of all sizes due to its ease of use, flexibility, and powerful features. This guide will walk you through the process of integrating Stripe payments into your Next.js app.
+
+## Environment Variables -
+
+Let's start by setting up the environment variables. Create a `.env.local` file in the root of your project and add the following variables:
+
+```zsh
+# STRIPE
+STRIPE_API_KEY="replace_me"
+STRIPE_WEBHOOK_SECRET="replace_me"
+NEXT_PUBLIC_STRIPE_KEY="replace_me"
+NEXT_PUBLIC_STRIPE_MANAGE_URL="replace_me"
+NEXT_PUBLIC_PRICE_ID_BASIC="replace_me"
+NEXT_PUBLIC_PRICE_ID_PREMIUM="replace_me"
+```
+
+- `NEXT_PUBLIC_STRIPE_KEY` - This is stripe's publishable key, it will be available on client side
+- `STRIPE_API_KEY` - Stripes secret key, should not be available anywhere outside runtime.
+- `STRIPE_WEBHOOK_SECRET` - Used for event verification (verify that the event that came in actually came from stripe), once you run the service locally using the command below, the terminal will display your unique webhook secret, copy it and paste in the env variables. (Only for local development)
+- `NEXT_PUBLIC_PRICE_ID` - The price id from stripes dashboard, that refers to the matching plan - basic/premium etc. This is used in the database also, more on that later.
+- `NEXT_PUBLIC_STRIPE_MANAGE_URL` - This URL comes from stripes dashboard, inside customer portal. This URL is used for downgrade or upgrade the users subscription plan.
+
+## Webhook service
+
+```zsh file=package.json
+        "stripe:listen": "stripe listen --forward-to http://localhost:3000/api/webhooks/stripe"
+
+```
+
+This command requires the `stripe` cli, and can run it by using:
+`pnpm stripe:listen`
+It will set up a locally running service that is going to listen to events on your stripe account. The frontend api endpoint is `api/webhooks/stripe` and the file `route.ts` handles the post requests from the locally running service:
+
+```typescript file=route.ts
+export async function POST(req: Request) {
+  const body = await req.text();
+  const signature = headers().get("Stripe-Signature") as string;
+
+  let event: Stripe.Event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (error) {
+    return new Response(
+      `Webhook Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+      { status: 400 },
+    );
+  }
+  // If stripe sends a checkout.session.completed event, create a subscription
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    // This retrieves the subscription object from stripe
+    const subscription = await stripe.subscriptions.retrieve(
+      session.subscription as string,
+    );
+
+    // Add the subscription to our database
+    await createSubscriptionUseCase({
+      user_id: session.metadata!.userId,
+      stripeSubscriptionId: subscription.id,
+      stripeCustomerId: subscription.customer as string,
+      stripePriceId: subscription.items.data[0]?.price.id,
+      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+    });
+  } else if (
+    // Events for upgrading or updating a subscription
+    ["customer.subscription.created", "customer.subscription.updated"].includes(
+      event.type,
+    )
+  ) {
+    const subscription = event.data.object as Stripe.Subscription;
+    // if this fails due to race conditions where checkout.session.completed was not fired first, stripe will retry
+    // this will update the subscription in our database
+    await updateSubscriptionUseCase({
+      stripePriceId: subscription.items.data[0]?.price.id,
+      stripeSubscriptionId: subscription.id,
+      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+    });
+  }
+
+  return new Response(null, { status: 200 });
+}
+```
+
+For each request that comes in we are validating the stripe-signature header against the webhook secret we created to make sure this request is valid.
+Then depending on the type of event stripe sent, we are adding/modifying the data inside `subscriptions` table:
+
+### Schema:
+
+```"SQL"
+CREATE TABLE `subscriptions` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`user_id` char(36) NOT NULL,
+	`stripeSubscriptionId` varchar(255) NOT NULL,
+	`stripeCustomerId` varchar(255) NOT NULL,
+	`stripePriceId` varchar(255) NOT NULL,
+	`expires` timestamp NOT NULL,
+	CONSTRAINT `subscriptions_id` PRIMARY KEY(`id`),
+	CONSTRAINT `subscriptions_user_id_unique` UNIQUE(`user_id`),
+	CONSTRAINT `userId_idx` UNIQUE(`user_id`)
+);
+```
+
+## How does the subscription works?
+
+- **stripePriceId** - This field describes the subscription plans unique price id, and that is how can differentiate between free/basic/premium users.
+
+- **Expires** - This field is set up by stripe, let's say a user has subscribed for a monthly recurring subscription today, then the expires field would display the next month date. Once the expires day arrives, either stripe sends a new webhook event that updates the expires field (see code above) or if it doesn't then the subscription is no longer valid.
+
+## Frontend flow
+
+The following is a suggestion for implementing the stripe payment flow in your frontend:
+
+### `app\dashboard\settings\subscription\page.tsx`
+
+This is the page where the user can manage his subscription, it shows the current plan the user is on, and a button that redirects to the stripes dashboard url, where the user can manage his subscription.
+
+```typescript file=page.tsx
+
+export default async function SubscriptionPage() {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const currrentPlan = await getUserPlanUseCase(user.user.id);
+
+  return (
+    currrentPlan !== "free" && (
+      <ConfigurationPanel title="Manage Subscription">
+        <div className="flex flex-col gap-4">
+          <div>
+            You are currently using the{" "}
+            <span className="text-bold text-blue-400">{currrentPlan}</span>{" "}
+            plan.
+          </div>
+          <div>You can upgrade or cancel your subscription below</div>
+          <Button className="max-w-fit" asChild>
+            <Link
+              href={env.NEXT_PUBLIC_STRIPE_MANAGE_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Manage Subscription
+            </Link>
+          </Button>
+        </div>
+      </ConfigurationPanel>
+    )
+  );
+}
+```
+
+### `use-cases/subscription.ts`
+
+This file is an example of what functions you might need to manage the user's subscription, notice each use-case is using server actions, such as `getSubscription`, `createSubscription`, `updateSubscription`, these are generics, and you should implement them using your ORM or db of choice.
+
+```typescript file=use-cases/subscription.ts
+export type Plan = "free" | "basic" | "premium";
+
+export async function getUserPlanUseCase(userId: string): Promise<Plan> {
+  const subscription = await getSubscription(userId);
+
+  if (!subscription) {
+    return "free";
+  } else {
+    // Test if the subscription is premium or basic
+    return subscription.stripePriceId === env.NEXT_PUBLIC_PRICE_ID_PREMIUM
+      ? "premium"
+      : "basic";
+  }
+}
+
+export async function createSubscriptionUseCase(subscription: {
+  user_id: string;
+  stripeSubscriptionId: string;
+  stripeCustomerId: string;
+  stripePriceId: string;
+  stripeCurrentPeriodEnd: Date;
+}) {
+  await createSubscription(subscription);
+}
+
+export async function updateSubscriptionUseCase(subscription: {
+  stripeSubscriptionId: string;
+  stripePriceId: string;
+  stripeCurrentPeriodEnd: Date;
+}) {
+  await updateSubscription(subscription);
+}
+
+export function isSubscriptionActive(subscription?: Subscription) {
+  if (!subscription) return false;
+  return subscription.stripeCurrentPeriodEnd >= new Date();
+}
+```
+
+### `checkout-button.tsx`
+
+An example of the checkout button component, using [useServerAction from ZSA](https://zsa.vercel.app/docs/introduction) to trigger the server action that generates the stripe session.
+
+```ts
+export function CheckoutButton({
+  className,
+  children,
+  priceId,
+}: {
+  className?: string;
+  children: ReactNode;
+  priceId: string;
+}) {
+  const { execute, isPending } = useServerAction(generateStripeSessionAction);
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        execute({ priceId });
+      }}
+    >
+      <LoaderButton isLoading={isPending} className={className}>
+        {children}
+      </LoaderButton>
+    </form>
+  );
+}
+
+```
+
+```ts
+const stripeSession = await stripe.checkout.sessions.create({
+  success_url: `${env.HOST_NAME}/success`,
+  cancel_url: `${env.HOST_NAME}/cancel`,
+  payment_method_types: ["card"],
+  customer_email: email ? email : undefined,
+  mode: "subscription",
+  line_items: [
+    {
+      price: priceId,
+      quantity: 1,
+    },
+  ],
+  metadata: {
+    userId: userId,
+  },
+});
+
+redirect(stripeSession.url!);
+```
+
+- `success_url` - Where the user should be redirected upon success
+- `cancel_url` - Where the user should be redirected upon canceling
+- `payment_method_types` - What payment methods we accept
+- `mode` - subscription\one time payment
+- `line_items` - points to our product inside stripe
+- `metadata` `userId` - This is used in the webhook to update the user's subscription (see the webhook route and notice the use of the metadata field)
+
+# Debugging
+
+Visit [events](https://dashboard.stripe.com/test/events) in the dashboard, this page shows all the events that went through the webhook, and the events that occurred on our stripe service.
+
+You can also visit [Workbench](https://dashboard.stripe.com/test/workbench/events) which is a more intuitive way to view the data regarding our payment system. This is critical for refunds, history and user management.

@@ -1,0 +1,219 @@
+---
+title: "Zod Server Actions"
+date: "2024-07-5"
+spoiler: "making server actions tidy"
+---
+
+ZSA is a cool library I encountered during my regular morning youtube crawl, and it caught my eye.
+
+I've been working on a quite large project, using nextjs and all the stuff the cool kids use like zod, drizzle etc.
+Well, I noticed that creating a server action is a bit tedious when you want end to end type-safety.
+
+I have yet to find an elegant way to validate, execute and make sure everything inside a server action is good, it is always a bit of hassle. Although I have pretty much created a standard of how to do that in my project, I was very happy to see someone abstracted it very good, that's where ZSA comes in to play.
+
+## Installation
+
+```shell
+npm i zsa zsa-react zod
+```
+
+## Use-Cases
+
+1. Creating a server action: (example from docs)
+
+```typescript
+"use server";
+
+import { createServerAction } from "zsa";
+import z from "zod";
+
+export const incrementNumberAction = createServerAction()
+  .input(
+    z.object({
+      number: z.number(),
+    }),
+  )
+  .handler(async ({ input }) => {
+    // Sleep for .5 seconds
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Increment the input number by 1
+    return input.number + 1;
+  });
+```
+
+In this example, we can notice 3 things: 1. createServerAction - this function initializes the server action. 2. input - this is the input schema for zod to validate 3. handler - the handler function, which gets the validated input and performs the action.
+
+2. Calling an action from the server:
+
+```typescript file=example.ts
+"use server";
+
+const [data, err] = await incrementNumberAction({ number: 24 });
+
+if (err) {
+  return;
+} else {
+  console.log(data); // 25
+}
+```
+
+This function returns `[data,null]` on success or `[null,err]` on failure.
+Apart from the returned array, looks like a regular async function we call from the server right? Don't forget the input validation that happens in the bg.
+
+3. Calling from the client
+
+```typescript filename=increment-example.tsx
+<Button
+    onClick={async () => {
+	    const [data, err] = await incrementNumberAction({
+            number: counter,
+        })
+        if (err) {
+        // handle error
+        return
+        }
+
+		setCounter(data);
+  }}
+>
+    Invoke action
+</Button>
+```
+
+And with a dedicated hook for loading state 🤩
+
+```typescript
+"use client"
+
+import { incrementNumberAction } from "./actions";
+import { useServerAction } from "zsa-react";
+import { useState } from "react";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "ui";
+
+export default function IncrementExample() {
+    const [counter, setCounter] = useState(0);
+    const { isPending, execute, data } = useServerAction(incrementNumberAction);
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Increment Number</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+                <Button
+                    disabled={isPending}
+                    onClick={async () => {
+                        const [data, err] = await execute({
+                            number: counter,
+                        })
+
+                        if (err) {
+                            // handle error
+                            return
+                        }
+
+                        setCounter(data);
+                    }}
+                >
+                    Invoke action
+                </Button>
+                <p>Count:</p>
+                <div>{isPending ? "saving..." : data}</div>
+            </CardContent>
+        </Card>
+    );
+}
+```
+
+How awesome is that right?
+
+## Procedures
+
+There are also what ZSA calls "procedures":
+
+> Procedures allow you to add additional context to a set of server actions, such as the `userId` of the caller. They are useful for ensuring certain actions can only be called if specific conditions are met, like the user being logged in or having certain permissions.
+
+e.g:
+
+```typescript
+"use server";
+import { createServerActionProcedure } from "zsa";
+
+const authedProcedure = createServerActionProcedure().handler(async () => {
+  try {
+    const { email, id } = await getUser();
+
+    return {
+      user: {
+        email,
+        id,
+      },
+    };
+  } catch {
+    throw new Error("User not authenticated");
+  }
+});
+
+export const updateEmail = authedProcedure
+  .createServerAction()
+  .input(
+    z.object({
+      newEmail: z.string(),
+    }),
+  )
+  .handler(async ({ input, ctx }) => {
+    const { user } = ctx;
+
+    // Update user's email in the database
+    await db
+      .update(users)
+      .set({
+        email: newEmail,
+      })
+      .where(eq(users.id, user.id));
+
+    return input.newEmail;
+  });
+```
+
+In this example we create a procedure called `authedProcedure` which returns a `user` object, and in the `updateEmail` function we chain a server action to that procedure thus we are able to get a `ctx` (context) object, and retrieve the information of the user. This is basically like creating a middleware.
+
+## Outputs
+
+We can also define outputs, using the same validation library, zod.
+
+```typescript
+"use server";
+
+import { createServerAction } from "zsa";
+import z from "zod";
+
+export const myOutputAction = createServerAction()
+  .input(
+    z.object({
+      name: z.string(),
+      email: z.string().email(),
+    }),
+  )
+  .output(
+    z.object({
+      message: z.string(),
+      timestamp: z.date(),
+    }),
+  )
+  .handler(async ({ input }) => {
+    // Process the input data and create a response
+    return {
+      message: `Hello, ${input.name}! Your email is ${input.email}.`,
+      timestamp: new Date(),
+    };
+  });
+```
+
+Notice we are now chaining the `output` handler to the server action constructor, this ensures that the object we return has the expected types!
+This is super awesome since trying to create sort of a standard of server actions and validation myself, was not clean and good enough.
+
+## Conclusions
+
+There are also sections in the docs about callbacks, timeouts, retries and error handling but I thought this article is big enough and covers a bit more than the basic stuff zsa has to offer.
+I'm now migrating my server actions to zsa actions and procedures and I'm loving it, it creates order and makes the code much cleaner.

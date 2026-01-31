@@ -1,0 +1,81 @@
+---
+title: "I Created a VS Code Extension"
+date: "2024-09-10"
+spoiler: "to see all the 'use client' and 'use server' directives in a tree view, and spot unused exported server actions"
+---
+
+## React's Most Dangerous Feature
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+    src="https://www.youtube.com/embed/yUm-ET8w_28"
+    title="React's Most Dangerous Feature"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen>
+  </iframe>
+</div>
+<br />
+If you have ever searched for something related to modern frontend development,
+you have probably come across [Theo](https://www.youtube.com/@t3dotgg/videos),
+an awesome content creator I've been following for a long time. <br /> Last week
+he published a video called "React's most dangerous feature" where he talks
+about, and showcases, some concerning security issues with the 'use server'
+directives. Now, I'm sitting there watching this, and it hits me – I've got a
+bunch of Next.js projects, and I've never really double-checked all those 'use
+server' functions I've been exporting. Oops.
+
+So I decided to create a VS Code extension that would help me visualize all the 'use server' directives in a tree view, and mark unused exported server actions so it would be easier to spot this security issue.
+
+<br/>
+<div class="flex justify-center gap-4 items-center">
+![logo](https://raw.githubusercontent.com/shakedhagag/directive-tree/main/resources/icon.png)
+<span>
+## <a href='https://marketplace.visualstudio.com/items?itemName=shagag.directive-tree'>Directive Tree</a>
+
+quick and easy way to visualize and navigate 'use client' and 'use server' directives in your codebase, and spot unused exported server actions.
+
+</span>
+</div>
+
+## Why Use It?
+
+The main issue with the 'use server' directive is that once you export a function with this directive, it creates a POST endpoint on your server that can be accessed by anyone, thus exposing your server to potential security threats.
+Now, I know, that the developer should be in charge of securing their application, but as Theo said in the video, and I totally agree with him as a Frontend Developer that started working on some server side stuff, we need to make it an habit, and I believe this tool can help with that.
+
+Regarding the 'use client' directive, I added because why not? But maybe in the future, this could be developed to a feature that would help you understand the flow of your components, and maybe suggest to remove some unecessary 'use client's.
+
+### Locate Server Actions
+
+![example](https://raw.githubusercontent.com/shakedhagag/directive-tree/main/resources/example.png)
+
+### Find Unused Server Actions
+
+![example](https://raw.githubusercontent.com/shakedhagag/directive-tree/main/resources/example2.png)
+
+## How it works
+
+I remembered using an extension in the past, called Todo Tree, that scans your codebase for TODO comments and displays them in a tree view. I thought I could use a similar approach to scan my codebase for 'use server' directives and display them in a tree view.
+
+Todo Tree's code is open source, but a bit old and not very well documented. I decided to take insipiration from it and write my extension with similar approach, but with a few changes, the first one, obviously, is using TypeScript.
+
+**Custom Tree Data Provider**: <br/> <br/>
+I implemented a custom Tree Data Provider by extending vscode.TreeDataProvider. This implementation allows for control over the tree structure and its nodes. The provider manages four types of tree nodes:
+
+- 1. Categories: Top-level groupings `'use server'` | `'use client'`.
+- 2. Folders: Representing directory structures within the project.
+- 3. Files: Individual files containing `'use server'` | `'use client'` directives.
+- 4. Functions: Specific functions using the directives (or inside the file with the directive).
+
+**Ripgrep Search Function**:
+
+- I used ripgrep to search for `'use server'` and `'use client'` directives in the project. Ripgrep is a fast and efficient search tool that can be used from the command line. I used the child_process module to run ripgrep from the extension.
+- I of course excluded node_modules and limited the search to `.js, .ts, .jsx, .tsx` file formats to speed up the search process.
+
+**Mark Unused Server Actions**: <br/> <br/>
+I also added a feature to mark unused exported server actions. This is done by scanning the project for exported functions that are not used in the project. I used the TypeScript compiler (LSP) api to parse the project's source files and find all exported functions.
+
+## Conclusion
+
+I'm really happy with the result. The extension is already helping me navigate my projects and spot unused server actions. I'm planning to add more features in the future, but for now i'll need to focus on fixing the bugs and improving the performance.

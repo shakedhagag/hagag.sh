@@ -1,0 +1,318 @@
+---
+title: "Enums and Pattern Matching"
+date: "2025-03-28"
+spoiler: "Chapter 7 - Another way to structure data and pattern match!"
+group: "rust-book-notes"
+---
+
+Rust's module system includes:
+
+- **Packages** - A Cargo feature that lets you build, test and share crates
+- **Crates** - A tree of modules that produces a library or executable.
+- **Modules and use** - Let you control the organization, scope, and privacy of paths.
+- **Paths** - A way of naming an item, such as a struct, function, or module.
+
+## Packages and Crates
+
+A crate is the smallest amount of code that the Rust compiler considers at a time. Crates can contain modules, and the modules may be defined in other files that get compiled with the crate.
+
+A crate can come in one of two forms: a binary crate or a library crate.
+`Binary` crates are programs you can compile to an executable that you can run, such as a command line program or a server. Each must have a function called `main` that defines what happens when the executable runs.
+
+`Library` crates don't have a `main` function, and they don't compile to an executable. Instead they define the functionality to be shared with multiple projects.
+
+A `package` is a bundle of one or more crates that provides a set of functionality. A package contains `Cargo.toml` file that describes how to build the crates.
+
+### How modules, paths, `use` and `pub` work
+
+1. **Start from the root** - When compiling a crate the compiler first looks in the crate root file, usually `src/lib.rs` for a library crate or `src/main.rs` for code to compile.
+2. **Declaring modules** - In the root file you can declare new modules, like so - `mod new_module;`. the compiler will look for the module's code in these places:
+   - Inline, inside the curly braces: `mod new_module{}`
+   - `src/new_module.rs`
+   - `src/new_module/mod.rs`
+3. **Declaring submodules** - In any file other than the crate root you can declare submodules. For example, you might declare `mod sub_module;` in `src/new_module.rs`, the compiler will look for the submodules code in the parent module directory, in these places:
+   - Inline, inside the curly braces: `mod sub_module{}`
+   - `src/new_module/sub_module.rs`
+   - `src/new_module/sub_module/mod.rs`
+4. **Paths to code in modules** - Once a module is part of your crate, you can refer to code in that module from anywhere else in that same crate, as long as the privacy rules allow, using the path to the code. For example: `crate::new_module::sub_module::Test`
+5. **Private vs Public** - Code within a module is private from its parent modules by default. To make a module public, declare it with `pub mod` instead of `mod`. To make items within a public module public as well use `pub` before their declarations
+6. **`use` keyword** - Within a scope the use keyword creates shortcuts to items to reduce repetition of long paths. Add `use` to the `crate::new_module::sub_module::Test` line and you can use the Test in that scope.
+
+### Example of a Module Structure
+
+```rust
+// In src/lib.rs
+pub mod front_of_house {
+    pub mod hosting {
+        pub fn add_to_waitlist() {}
+        pub fn seat_at_table() {}
+    }
+
+    pub mod serving {
+        pub fn take_order() {}
+        pub fn serve_order() {}
+        pub fn take_payment() {}
+    }
+}
+
+pub fn eat_at_restaurant() {
+    // Absolute path
+    crate::front_of_house::hosting::add_to_waitlist();
+
+    // Relative path
+    front_of_house::hosting::add_to_waitlist();
+}
+```
+
+### [A small exercise to understand Rust module system and everything mentioned above](https://github.com/shakedhagag/rust-control-scope-ex/tree/main)
+
+### The `super` keyword
+
+Using `super` allows to reference an item that we know is in the parent module, which can make rearranging the module tree easier when the module is closely related to the parent but the parent might be moved elsewhere in the module tree someday.
+
+```rust
+fn deliver_order() {}
+
+mod back_of_house {
+    fn fix_incorrect_order() {
+        cook_order();
+        super::deliver_order();
+    }
+    fn cook_order() {}
+}
+```
+
+Using `super` here allows us to access a function that is scoped within the parent module, which in the above case is the crate, the root.
+If, any time in the future, we decide to move this code to another module, this won't break anything, since `super` still allows us to access the root's function.
+
+### Making Structs and Enums Public
+
+We can also use the `pub` keyword to make structs and enums public. But there are a few details to the usage of pub with structs and enums. If we use `pub` before a struct definition, we make the struct public but its fields will still be private. We need to specify it for each field we want to make public:
+
+```rust
+mod back_of_house {
+    pub struct Breakfast {
+        pub toast: String,
+        seasonal_fruit: String,
+    }
+
+    impl Breakfast {
+        pub fn summer(toast: &str) -> Breakfast {
+            Breakfast {
+                toast: String::from(toast),
+                seasonal_fruit: String::from("peaches"),
+            }
+        }
+    }
+}
+
+
+pub fn eat_at_restaurant() {
+    // Order a breakfast in the summer with Rye toast
+    let mut meal = back_of_house::Breakfast::summer("Rye");
+    // Change our mind about what bread we'd like
+    meal.toast = String::from("Wheat");
+    println!("I'd like {} toast please", meal.toast);
+
+    // The next line won't compile if we uncomment it; we're not allowed
+    // to see or modify the seasonal fruit that comes with the meal
+    // meal.seasonal_fruit = String::from("blueberries");
+}
+```
+
+Because the `toast` field is public, we can write and read to the `toast` field using dot notation: `meal.toast = ...`
+Notice the comments below the `println!` line, if we uncomment the last line we would get an error, since `seasonal_fruit` is private.
+
+_In contrast_ if we make an `enum` public, all of its variants are then public. We only need the `pub` before the `enum` keyword.
+**The default of enum is `public`**
+
+### Bringing paths into scope using `use` keyword
+
+```rust
+use crate::front_of_house::hosting;
+.
+.
+.
+hosting::add_to_waitlist();
+```
+
+Adding the path after the `use` keyword, brings the `hosting` module into scope, so we can use its children without specifying the entire path.
+
+_Note that use only creates this shortcut for the particular scope in which it occurs_
+
+### Idiomatic Use Paths
+
+The idiomatic way to bring functions into scope with `use` is to bring the parent module into scope, not the function directly. This makes it clear that the function isn't locally defined:
+
+```rust
+// Preferred - bring module into scope
+use crate::front_of_house::hosting;
+// Then use the function
+hosting::add_to_waitlist();
+
+// Less clear where the function comes from
+use crate::front_of_house::hosting::add_to_waitlist;
+add_to_waitlist();
+```
+
+For structs, enums, and other items, it's idiomatic to specify the full path:
+
+```rust
+use std::collections::HashMap;
+let mut map = HashMap::new();
+```
+
+### The `as` Keyword
+
+You can use the `as` keyword to provide a new name for a type when bringing it into scope:
+
+```rust
+use std::fmt::Result;
+use std::io::Result as IoResult;
+
+fn function1() -> Result {
+    // --snip--
+    Ok(())
+}
+
+fn function2() -> IoResult<()> {
+    // --snip--
+    Ok(())
+}
+```
+
+### Re-exporting Names with `pub use`
+
+When we bring a name into scope with the `use` keyword, the name is private to our scope. To enable code that calls our code to refer to that name as if it had been defined in that code's scope, we can use `pub use`:
+
+```rust
+// In a library crate (lib.rs)
+mod front_of_house {
+    pub mod hosting {
+        pub fn add_to_waitlist() {}
+    }
+}
+
+// Re-export the hosting module
+pub use crate::front_of_house::hosting;
+
+// External code can now use it as:
+// restaurant::hosting::add_to_waitlist();
+```
+
+## Using External Packages
+
+To use an external package, add it to your `Cargo.toml` file:
+
+```toml
+[dependencies]
+rand = "0.8.5"
+```
+
+Then bring it into scope in your code:
+
+```rust
+use rand::Rng;
+
+fn main() {
+    let secret_number = rand::thread_rng().gen_range(1..=100);
+}
+```
+
+## Organizing Modules in Separate Files
+
+In larger projects, you often want to split your code into multiple files.
+
+For example, with a module structure:
+
+```
+src/
+├── main.rs
+├── front_of_house.rs
+└── front_of_house/
+    ├── hosting.rs
+    └── serving.rs
+```
+
+Your code would look like:
+
+```rust
+// src/main.rs
+mod front_of_house;
+
+use crate::front_of_house::hosting;
+
+fn main() {
+    hosting::add_to_waitlist();
+}
+
+// src/front_of_house.rs
+pub mod hosting;
+pub mod serving;
+
+// src/front_of_house/hosting.rs
+pub fn add_to_waitlist() {}
+pub fn seat_at_table() {}
+
+// src/front_of_house/serving.rs
+pub fn take_order() {}
+pub fn serve_order() {}
+pub fn take_payment() {}
+```
+
+## Working with Workspaces
+
+For large projects consisting of multiple related packages, Rust provides workspaces. A workspace is a set of packages that share the same `Cargo.lock` and output directory.
+
+Here's how to create a workspace:
+
+```toml
+# In a file named Cargo.toml in your workspace root
+[workspace]
+members = [
+    "package1",
+    "package2",
+    "package3/package3-utils",
+]
+```
+
+Then you can create each package in its own directory:
+
+```
+workspace/
+├── Cargo.toml
+├── package1/
+│   ├── Cargo.toml
+│   └── src/
+│       └── main.rs
+├── package2/
+│   ├── Cargo.toml
+│   └── src/
+│       └── lib.rs
+└── package3/
+    └── package3-utils/
+        ├── Cargo.toml
+        └── src/
+            └── lib.rs
+```
+
+To depend on a package in the same workspace:
+
+```toml
+# In package1/Cargo.toml
+[dependencies]
+package2 = { path = "../package2" }
+```
+
+To build all packages in the workspace:
+
+```
+cargo build --workspace
+```
+
+### Benefits of Workspaces
+
+1. **Shared Dependencies**: All packages in a workspace share one `Cargo.lock` file, ensuring consistent dependency versions.
+2. **Efficient Builds**: Cargo optimizes builds by sharing build artifacts among packages.
+3. **Easy Cross-References**: Packages can easily depend on each other using relative paths.
+4. **Coordinated Tests**: You can test all packages in a workspace with a single command.

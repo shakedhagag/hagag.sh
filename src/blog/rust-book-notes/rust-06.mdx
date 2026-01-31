@@ -1,0 +1,154 @@
+---
+title: "Enums and Pattern Matching"
+date: "2025-02-18"
+spoiler: "Chapter 6 - Another way to structure data and pattern match!"
+group: "rust-book-notes"
+---
+
+Enums in Rust provide a powerful way to define a type by enumerating its possible variants. This feature allows for more expressive and type-safe code. Let's explore how to create an enum:
+
+```rust
+enum IpAddrKind {
+    v4,
+    v6,
+}
+```
+
+We can instantiate each of the two variants of `IpAddrKind` as follows:
+
+```rust
+let four = IpAddrKind::v4;
+let six = IpAddrKind::v6;
+```
+
+Notice that both variables are of the same type, `IpAddrKind`, and are namespaced under it. This allows us to define a function that can accept any `IpAddrKind` variant:
+
+```rust
+fn route(ip_kind: IpAddrKind) {
+
+}
+
+route(IpAddrKind::v4);
+```
+
+Enums in Rust can also hold data directly within each variant, making them versatile and powerful:
+
+```rust
+enum IpAddr {
+  V4(String),
+  V6(String),
+}
+
+let home = IpAddr::V4(String::from("127.0.0.1"))
+let loopback = IpAddr::V6(String::from("::1"))
+```
+
+This approach is both simple and intuitive, as it allows us to attach data directly to each variant of the enum.
+
+- While this can also be achieved using structs, it often results in more verbose and less elegant code:
+
+  ```rust
+  struct IpAddr {
+    kind: IpAddrKind,
+    address: String,
+  }
+
+  let home = IpAddr {
+    kind: IpAddrKind::V4,
+    address: String::from("127.0.0.1"),
+  };
+  ```
+
+Let's examine a more complex example:
+
+```rust
+enum message {
+  quit,
+  move { x:i32, y:32 },
+  write(string),
+  changecolor(i32, i32, i32)
+}
+```
+
+The same functionality can be achieved using structs, but it requires more boilerplate code:
+
+```rust
+struct QuitMessage;
+struct MoveMessage {
+  x: i32,
+  y:i32,
+}
+struct WriteMessage(String);
+struct ChangeColorMessage(i32, i32, i32);
+```
+
+In this example, we created four different structs to represent what was previously a single enum. This approach is more complex and redundant. Additionally, defining a function to handle any of these message types is not as straightforward as it is with an enum.
+
+We can also define methods on enums using `impl` blocks:
+
+```rust
+impl Message {
+  fn call(&self) {
+    //method body
+  }
+}
+
+let m = Message::Write(String::from("hello"));
+m.call();
+```
+
+### The Option Enum
+
+The `Option` enum, defined in the standard library, elegantly handles scenarios where a value might be present or absent. Unlike many other languages, Rust does not have a `null` feature, which often represents the absence of a value. Instead, Rust uses `Option` to explicitly handle such cases.
+
+```rust
+enum Option<T> {
+  None,
+  Some(T)
+}
+```
+
+The `Option` enum is so fundamental that it is included in the Rust prelude, meaning you don't need to explicitly bring it into scope. The two variants of `Option` are `Some` and `None`.
+
+```rust
+
+let some_number = Some(5);
+let absent_number: Option<i32> = None
+
+```
+
+The type of `some_number` is `Option<i32>`. For `absent_number`, Rust requires us to annotate the option type explicitly because it is a `None` value.
+
+### Matches are exhaustive
+
+Rust's `match` expression is exhaustive, meaning that all possible cases must be handled for the code to be valid. This ensures that no potential scenario is overlooked.
+
+### Catch-All Patterns and the `_` Placeholder
+
+The underscore (`_`) is a special pattern in Rust that matches any value without binding it to a variable. It is particularly useful in `match` expressions when you want to handle all remaining cases without needing to use the values.
+
+1. Using `_`:
+
+```rust
+match some_value {
+    0 => println!("Zero"),
+    1 => println!("One"),
+    _ => println!("Something else")  // Matches any other number
+}
+```
+
+2. Using a variable name to catch and bind the value:
+
+```rust
+match number {
+    1 => println!("One"),
+    2 => println!("Two"),
+    n => println!("The number is: {}", n)  // Matches and binds the value to 'n'
+}
+```
+
+Key differences between `_` and a catch-all variable:
+
+- `_` discards the value and cannot be used later
+- A named variable (like n) captures the value and lets you use it
+- `_` clearly signals to other developers that the value won't be used

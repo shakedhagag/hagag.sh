@@ -1,0 +1,98 @@
+---
+title: "Common Programming Concepts"
+date: "2025-01-22"
+spoiler: "Chapter 3 - Variables, Constants, Shadowing, Data Types, and Loops"
+group: "rust-book-notes"
+---
+
+## Variables and Mutability
+
+Once a `let` value has been initialized, it cannot be reassigned to a different value. For that, you need `let mut`.
+
+```rust
+fn main() {
+    let x = 1.1; // x can never be reassigned
+    let mut y = 2.2;
+
+    y = 3.3; // Works fine
+    y += 4.4; // Syntax sugar for y = y + 4.4
+
+    println!("x times y is {}", x * y);
+}
+```
+
+### Constants
+
+constants are values that are bound to a name and are not allowed to change. unlike let, you aren't allowed to use `mut` with constants.
+Also, the type of the value must be annotated:
+
+```rust
+const THREE: u32 = 3;
+```
+
+Constant evaluation is the process of computing the result of [expressions](https://doc.rust-lang.org/reference/expressions.html) during compilation. Only a subset of all expressions can be evaluated at compile-time.
+
+Read [Constant Evaluation](https://doc.rust-lang.org/reference/const_eval.html)
+
+### Shadowing
+
+Shadowing lets us perform transformations on an immutable value, but have the variable be immutable after those transformations have been completed.
+
+### Data Types
+
+Scalar Types - are integers, floats, booleans and chars.
+
+Integers:
+Each signed (i) variant can store numbers from $-(2^(n - 1))$ to $(2^(n-1))-1$ inclusive, where *n* is the number of bits that variant uses. So an `i8` can store numbers from $-(2^7)$ to $2^7 - 1$, which equals -128 to 127. Unsigned variants can store numbers from 0 to 2n - 1, so a `u8` can store numbers from 0 to 28 - 1, which equals 0 to 255.
+
+| Length  | Signed  | Unsigned |
+| ------- | ------- | -------- |
+| 8-bit   | `i8`    | `u8`     |
+| 16-bit  | `i16`   | `u16`    |
+| 32-bit  | `i32`   | `u32`    |
+| 64-bit  | `i64`   | `u64`    |
+| 128-bit | `i128`  | `u128`   |
+| arch    | `isize` | `usize`  |
+
+> Signed integers are represented using the [two's complement method](https://en.wikipedia.org/wiki/Two%27s_complement).
+
+Numeric Operations, Boolean and chars are as usual.
+
+- Char in Rust is represented in 4 bytes in size and represents a unicode scalar value.
+
+### Compound Types
+
+- The Tuple Type - `let tup: (i32, f64, u8) = (500,6.4,1)`
+- Array Type - `let a: [i32,5] = [1,2,3,4,5]` - finite size, elements are the same type and is allocated on the stack and not the heap.
+
+### Loops
+
+- You can label a loop which is very cool:
+
+```rust
+  'counting: loop {
+  println!("Im inside the counting loop");
+  loop{
+  	println!("i can break the outer loop!");
+  	break 'counting;
+  }
+  }
+```
+
+- `loop` is infinite.
+- `while {condition} loops`:
+
+```rust
+  while number != 0 {
+    println!(number);
+  }
+```
+
+- `for` loop:
+
+```rust
+  let a = [1,2,3,4,5];
+  for element in a {
+    println!(element);
+  }
+```

@@ -1,0 +1,83 @@
+---
+title: "Kitty Terminal"
+date: "2024-08-11"
+spoiler: "GPU accelerated terminal emulator"
+---
+
+Over the past month, I transitioned from WezTerm to the Kitty terminal, thanks to a friend's recommendation. After daily use with tmux and Neovim, I can say it's been a game-changer—responsive, fast, and effortlessly configurable.
+
+Kitty leverages the GPU to enhance performance, delivering a smooth and seamless experience:
+
+> The main goals for *kitty* performance are user perceived latency while typing and “smoothness” while scrolling as well as CPU usage. *kitty* tries hard to find an optimum balance for these. To that end it keeps a cache of each rendered glyph in video RAM so that font rendering is not a bottleneck. Interaction with child programs takes place in a separate thread from rendering, to improve smoothness. Parsing of the byte stream is done using [vector CPU instructions](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data) for maximum performance. Updates to the screen typically require sending just a few bytes to the GPU.
+
+You can check out the performance benchmarks in [Kitty's documentation](https://sw.kovidgoyal.net/kitty/performance/), and while they certainly look impressive, I had to see it for myself. After using it, I can confirm—it lives up to the hype.
+
+# Configuration
+
+Kitty uses `.conf` files for configurations this is mine:
+
+```zsh
+# BEGIN_KITTY_THEME
+# Solarized Osaka
+include current-theme.conf
+# END_KITTY_THEME
+
+font_family FiraCode Nerd Font Mono Light
+font_size 16
+bold_font        auto
+italic_font      auto
+bold_italic_font auto
+
+
+background_opacity 0.8
+background_blur 50
+
+
+macos_show_window_title_in none
+macos_titlebar_color #1a1b26
+macos_menubar_title_max_length 0
+hide_window_decorations titlebar-only
+
+```
+
+I use FiraCode Mono Light font, enabled font ligatures, and added a touch of background opacity with blur for that extra visual appeal, along with a few tailored macOS settings to match my preferences.
+
+## Theme
+
+If you know, you know. Solarized Osaka is a theme inspired by [craftzdog](https://www.craftz.dog/) - Takuya Matsuyama, a talented developer I’ve been following on YouTube and Twitter. I loved his theme’s color scheme so much that I created my own theme file for Kitty, as it’s not available in the default Kitty themes.
+
+```zsh
+# vim:ft=kitty
+
+## name: Solarized Osaka
+## author: shagag
+## license: MIT
+## blurb: Precision colors for developers
+
+background #1a1b26
+foreground #c0caf5
+cursor #c0caf5
+selection_background #283457
+color0 #002731
+color8 #001e26
+color1 #d01b24
+color9 #bd3612
+color2 #728905
+color10 #465a61
+color3 #a57705
+color11 #52676f
+color4 #2075c7
+color12 #708183
+color5 #c61b6e
+color13 #5856b9
+color6 #259185
+color14 #81908f
+color7 #e9e2cb
+color15 #fcf4dc
+selection_foreground #93a1a1
+
+```
+
+Simply copy the contents of the file above, and creat a current-theme.conf file inside the kitty `.config` directory. Don't forget to `gnu stow` kitty and add to your github dotfiles repo!
+
+![my terminal setup](/kitty.png)

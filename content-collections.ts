@@ -10,13 +10,14 @@ function extractFrontMatter(content: string) {
 
 const posts = defineCollection({
   name: 'posts',
-  directory: './src/blog', // Directory containing your .md files
-  include: '*.md',
+  directory: './src/blog',
+  include: '**/*.{md,mdx}',
   schema: z.object({
     title: z.string(),
-    published: z.string(),
-    description: z.string().optional(),
-    authors: z.array(z.string()),
+    date: z.string(),
+    spoiler: z.string(),
+    group: z.string().optional(),
+    customUrl: z.string().optional(),
   }),
   transform: ({ content, ...post }) => {
     const frontMatter = extractFrontMatter(content)
@@ -29,7 +30,7 @@ const posts = defineCollection({
       ...post,
       slug: post._meta.path,
       excerpt: frontMatter.excerpt,
-      description: frontMatter.data.description,
+      spoiler: post.spoiler, // Use schema-validated spoiler
       headerImage,
       content: frontMatter.body,
     }

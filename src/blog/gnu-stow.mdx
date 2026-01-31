@@ -1,0 +1,124 @@
+---
+title: "(version) Control your .dotfiles"
+date: "2024-06-23"
+spoiler: "with GNU stow!"
+---
+
+I work with too many tools as a software developer.
+I recently moved from vscode to neovim and started configuring my dotfiles much more, as neovim requires a whole lot of configurations, choosing the terminal, configuring zshell and much more.
+
+NeoVim opened a door I did not know I wanted to enter, and that made me look for a solution that will sync my dotfiles between machines, and keep them up to date.
+
+## What is GNU Stow?
+
+> GNU Stow is a symlink farm manager which takes distinct packages of software and/or data located in separate directories on the filesystem, and makes them appear to be installed in the same place.
+
+### What is a `symlink` ?
+
+A symlink is a file in unix systems, that acts as a pointer to another location in the file system, this allows us to access files from different location without the need to duplicate any of the files.
+
+### How to create a symlink?
+
+We have the link command: `ln`, lets check the helper:
+
+```zsh
+❯ ln -h
+usage: ln [-s [-F] | -L | -P] [-f | -i] [-hnv] source_file [target_file]
+       ln [-s [-F] | -L | -P] [-f | -i] [-hnv] source_file ... target_dir
+       link source_file target_file
+```
+
+Okay, doesn't say much, so we read online.
+Turns out the flag we need is `-s` and it specifies a soft link, you can probably guess what it is but anyways:
+
+> **Soft links** are similar to shortcuts, and can point to another file or directory in any file system.
+> **Hard links** are also shortcuts for files and folders, but a hard link cannot be created for a folder or file in a different file system. These can be created in the following way on Linux and Mac operating systems.
+
+So we need a soft link, using the link command, -s flag we can create a symlink:
+
+```zsh
+ln -s /path/to/file/to/be/linked /path/to/the/link/to/be/created
+```
+
+To test this, I created a file named `~/test/hello-world.sh` that contains the following line:
+
+```zsh filename="hello-world.sh"
+echo Hello World
+```
+
+Using `sh hello-world.sh` runs the echo command and print Hello World in the terminal. Now let's create a symlink:
+
+```zsh
+ln -s ~/test/hello-world.sh hello-world.sh
+```
+
+Now let's see what we did, simply run the command:
+
+```zsh
+ls -l
+```
+
+and voila:
+
+```zsh
+lrwxr-xr-x 1 staff 51 Jun 22 23:00 hello-world.sh -> ~/test/hello-world.sh
+```
+
+The line above means that hello-world.sh is linked to the file we created earlier, test/hello-world.sh. You can also see in far left `l` specifies the link.
+
+The magic here is that you can now edit the link file, and the original will be edited as well! Now you must see how I can use it for dotfiles!
+
+#### Installing GNU Stow
+
+I'm using brew:
+
+```zsh
+brew install stow
+```
+
+Now lets create the folder that will contain all the dotfiles, and will be committed to github:
+
+```zsh
+mkdir ~/.dotfiles
+```
+
+This folder will contain all our configuration files.
+`gnu stow` is requiring a special naming convention, as an example, the config files of nvim are located in: `~/.config/nvim` so in the gnu stow folder we need to create a folder: `nvim/.config/nvim`
+
+Another example would be `.zshrc` which is located in the home folder, then in gnu stow, we need to create the following: `zsh/.zshrc`
+
+Now let's start by moving nvim config files, to the new folder.
+
+```zsh
+mv .config/nvim .dotfiles/nvim/.config/
+```
+
+Opening nvim now should indicate that you moved every config file successfully, since it should be nvim without any plugin or config you had before, don't worry! let's fix this.
+Inside the new dotfiles directory, type:
+
+```zsh
+stow nvim
+```
+
+This command creates the symlink to nvim files! because we made sure to handle the naming convention we shouldn't have any problem.
+Now going in to .config folder, and typing:
+
+```zsh
+ls -l | grep nvim
+```
+
+we get `nvim -> ../.dotfiles/nvim/.config/nvim`, this means that nvim folder inside .config is just a symlink to our dotfiles.
+
+### Useful stuff
+
+- If you need to clean a symlink use the following command
+  `stow -D`
+- When using version control on the .dotfiles folder stow will automatically ignore the .git folder
+
+### Conclusions
+
+1. We installed `gnu stow`
+2. We created a dotfiles folder for all our configurations to live in.
+3. We used the naming convention of gnu stow to create sub folders inside .dotfiles.
+4. We moved every configuration we use (.zshrc, nvim, wezterm, tmux etc) to the new folder and then used `stow ${package}` to create a symlink.
+5. Now all that is left is to create a github repo where every change would be committed and used from any machine!

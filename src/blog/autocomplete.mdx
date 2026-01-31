@@ -1,0 +1,95 @@
+---
+title: "TypeScript AutoComplete Magic: String Literals and Type Intersections"
+date: "2024-11-30"
+spoiler: "A typescript trick to allow auto completion suggestions for complex types!"
+---
+
+Here is a cool thing I learned on the internet today, fixing the autocomplete/suggestions feature for a typescript type.
+
+## The Problem
+
+Imagine you're building a car configuration system for a luxury dealership. You want to suggest popular brands but also allow for custom or rare brands. Your first attempt might look like this:
+
+```ts
+type LuxuryCar = "Ferrari" | "Porsche" | "Lamborghini";
+
+const car: LuxuryCar = "Bugatti"; // Error! Type '"Bugatti"' is not assignable to type 'LuxuryCar'
+```
+
+This is too restrictive. Using a plain string type would solve the flexibility issue but loses the nice autocomplete suggestions:
+
+```ts
+type LuxuryCar = string;
+
+const car: LuxuryCar = "anything"; // Works, but no autocomplete suggestions
+```
+
+## The Solution
+
+Here's where TypeScript's type system shows its power. We can create a type that both suggests specific values AND allows any string using a clever intersection type:
+
+```ts
+type AutoComplete<T extends string> = T | (string & {});
+
+type LuxuryCar = AutoComplete<"Ferrari" | "Porsche" | "Lamborghini">;
+
+const valid: LuxuryCar = "Pagani"; // ✅ Works fine
+const suggested: LuxuryCar = "Ferrari"; // ✅ Gets autocomplete suggestions!
+```
+
+## How does it work?
+
+The magic happens through several TypeScript mechanisms working together:
+
+### Type Intersection with Empty Object
+
+`string & {}`
+
+When you intersect string with `{}`, you get a type that is assignable to string but cannot be undefined or null.
+And That's the magic right there, an empty object does not represent the empty object type! It represents any non-nullable value.
+So `string & {}` actually represents all strings that are not null or undefined.
+
+_A quick explanation about the empty object type
+If we want to define an empty object (not sure when you would need it but ok) we can do something like this:_
+
+```ts
+type EmptyObject = Record<string, never>;
+```
+
+_This is literaly saying empty object - a record type where the keys are strings and the value is never, meaning it cannot exist. the only type that suffices this is `{}`._
+
+### Union with Literal Types
+
+```ts
+T | (string & {});
+```
+
+This combines our specific literals (T) with the branded string type, creating a type that:
+
+Accepts any string value
+Provides autocomplete suggestions for the literal values
+
+### But wait how does that affect the AutoComplete?!
+
+The key insight is about how TypeScript's autocomplete behavior is designed to be helpful to developers. When TypeScript sees a union type, it has specific rules about how it prioritizes suggestions:
+
+When suggesting completions, TypeScript will always show the most specific types first:
+
+```ts
+// Case 1: No autocomplete
+type NormalUnion = "Ferrari" | "Porsche" | string;
+
+// Case 2: Autocomplete works
+type BrandedUnion = "Ferrari" | "Porsche" | (string & {});
+```
+
+The key difference lies in how TypeScript's type system handles these unions internally:
+
+In Case 1 (string), TypeScript sees this and immediately widens the entire type to just string.
+This is because `"Ferrari" | "Porsche" | string` is equivalent to just string - the literals get absorbed into the more general string type. When this widening happens, TypeScript loses the information about the specific literals, so they don't appear in autocomplete.
+
+In Case 2 (string & {}), TypeScript keeps the union distinct because `string & {}` is seen as a separate "branded" type, even though it represents all strings. The type system doesn't widen or collapse this union, preserving the literal types as distinct options.
+
+### Conclusion
+
+It's about preventing type widening while still allowing all strings - the intersection with `{}` tricks TypeScript into preserving the union structure rather than collapsing it to string.

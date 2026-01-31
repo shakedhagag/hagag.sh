@@ -1,5 +1,6 @@
 import { toString as toStringHast } from 'hast-util-to-string';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypePrettyCode from 'rehype-pretty-code';
 import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import rehypeStringify from 'rehype-stringify';
@@ -33,6 +34,13 @@ export async function renderMarkdown(content: string): Promise<MarkdownResult> {
       behavior: 'wrap',
       properties: { className: ['anchor'] },
     })
+    .use(rehypePrettyCode, {
+      theme: {
+        dark: 'github-dark',
+        light: 'github-light',
+      },
+      defaultLang: 'text',
+    }) // Add Shiki syntax highlighting with rehype-pretty-code
     .use(() => tree => {
       // Extract headings for table of contents
       visit(tree, 'element', (node: any) => {

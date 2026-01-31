@@ -1,0 +1,177 @@
+---
+title: "Understanding Ownership"
+date: "2025-01-23"
+spoiler: "Chapter 4 - Understanding Ownership, Memory Management, and Borrowing in Rust"
+group: "rust-book-notes"
+---
+
+Ownership is one of Rust's most unique and important features - a set of rules that governs how a Rust program manages memory. Unlike other programming languages that use garbage collection or manual memory management, Rust uses a system of ownership with a set of rules that the compiler checks at compile time.
+
+## Core Ownership Rules
+
+- Each value in Rust has an Owner
+- There can only be one owner at a time
+- When the owner goes out of scope, the value will be dropped.
+
+> Important Note: There is a crucial difference between the `&str` (string slice) type and `String` type. A string slice is allocated on the stack and has a fixed, known length, while `String` is allocated on the heap and can grow or shrink at runtime. This is why we use `String` when we need a mutable string:
+
+```rust
+let s = String::from("hello"); // Heap-allocated String
+let str_slice = "hello";       // Stack-allocated string slice
+```
+
+```rust
+let s = String::from("hello");
+
+s.push_str(", world!"); // appends a literal to a String
+```
+
+## Memory and Allocation
+
+With the String type, in order to support a mutable, growable piece of text, we need to allocate an amount of memory on the heap, unkown at compile time, to hold the contents.
+
+- The memory must be requested from the memory allocator at runtime.
+- We need a way of returning this memory to the allocator when we're done with our string
+
+When a variable goes out of scope Rust calls a special function called `drop` which is acting sort of like a garbage collector, by dropping unused memory
+
+![allocation example two](/rust-book-notes/allocation.png)
+
+if we run the following code:
+
+```rust
+let s1 = String::from("hello");
+let s2 = s1
+```
+
+Only the stack data is duplicated -
+
+![allocation example two](/rust-book-notes/allocation2.png)
+
+- Double free - a bug that is caused by freeing the memory twice
+
+Rust prevents this by default. Notice what happens when we try to print s1 after assigning it to s2
+
+```rust
+let s1 = String::from("hello");
+let s2 = s1
+
+println!("{s1}, world!");
+
+```
+
+We would get an error saying `borrow of moved value: `s1
+So we can see that rust does not make shallow copies, but "moves" the value -> s1 was moved to s2
+
+Rust allows us to deeply copy the heap data of the String, not just the stack data with a method called `clone`:
+
+```rust
+let s1 = String::from("hello");
+let s2 = s1.clone();
+
+println!("{s1}, world!");
+```
+
+But there is a difference when it comes to stack allocated memory:
+
+```rust
+let x = 5;
+let y = x;
+
+println!("{x}, {y}");
+```
+
+The above code is completely valid, because stack allocated memory is easy to clone and quick to make.
+
+> Rust has a special annotation called the Copy `trait` that we can place on types that are stored on the stack. If a type implements the copy trait, variables that use it do not move, but rather are trivially copied, making them still valid after assignment to another variable.
+
+## Ownership and functions
+
+Once a value is moved into the function scope, it is no longer valid inside the calling function unless the value is returned:
+
+```rust
+fn main(){
+	let s = String::from("hello");
+	takes_ownership(s) // s's value moves into take_ownership and from here on
+	 // is no longer valid, if we tried to use s after this line
+	 // we would get an error
+}
+```
+
+### The Key Takeaway:
+
+**In Rust, assigning a value to another variable moves ownership. When a variable containing heap data goes out of scope, Rust automatically cleans up that memory using `drop` - unless the ownership was moved to another variable.**
+
+This might seem restrictive, but Rust provides a powerful feature to work around this: References and Borrowing. Let's see how they work:
+
+```rust
+fn main(){
+	let s = String::from("hello");
+	let len = calculate_length(&s1);
+	println!("The length of '{s1}' is {len}");
+}
+
+fn calculate_length(s: &String) -> usize { // takes a reference to a String
+	s.len();
+}
+```
+
+When functions have references as parameters instead of the actual values we wont need to return the values in order to give back ownership, because we never had ownership.
+
+This is called _borrowing_ - the action of creating a reference.
+If we try to change the or modify something we are _borrowing_ we would get an error:
+
+```rust
+cannot borrow x as mutable, as it is behind a & reference
+```
+
+> Just as variables are immutable by default, so are references.
+
+## Mutable References
+
+```rust
+fn main(){
+	let mut s = String::from("hello");
+	change(&mut s);
+}
+
+fn change(some_string: &mut String) { // takes a reference to a String
+	some_string.push_str(", world");
+}
+```
+
+We changed s to be a mutable string and the parameter to be a mutable string reference: `&mut String`
+This means that the change function will mutate the value it borrows.
+
+**Mutable references have one restriction, if you have a mutable reference to a value, you can have no other references to that value.**
+
+**We also cannot have a mutable reference while we have an immutable one to the same value**
+
+## Understanding Slices
+
+_Slices_ are a powerful Rust feature that let you reference a contiguous sequence of elements in a collection without taking ownership. They're particularly useful when you want to reference only a portion of a collection, like getting a word from a string or a subset of an array.
+
+```rust
+let s = String::from("hello world");
+let hello = &s[0..5];
+
+let world = &s[6..11];
+```
+
+the slice is a reference to a range of the string s. it is annotated using - [starting_index..ending_index].
+
+The type that signifies "string slice" is written as &str
+
+```rust
+fn first_word(s: &String) -< &str {
+	let bytes = s.as_bytes(); // returns the string represented in arr of bytes
+
+	for (i, &item) in bytes.iter().enumerate() {
+	 // enumerate returns (index, ref to item)
+		if item == b' ' { // b' ' byte representation of space char
+			return &s[0..i]; // returns the first word up until the space
+		}
+	}
+	s[..] // returns the entire string
+}
+```
