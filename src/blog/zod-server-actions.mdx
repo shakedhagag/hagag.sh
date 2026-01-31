@@ -13,7 +13,7 @@ I have yet to find an elegant way to validate, execute and make sure everything 
 
 ## Installation
 
-```shell
+```zsh
 npm i zsa zsa-react zod
 ```
 
@@ -21,7 +21,7 @@ npm i zsa zsa-react zod
 
 1. Creating a server action: (example from docs)
 
-```typescript
+```tsx
 "use server";
 
 import { createServerAction } from "zsa";
@@ -45,7 +45,7 @@ In this example, we can notice 3 things: 1. createServerAction - this function i
 
 2. Calling an action from the server:
 
-```typescript file=example.ts
+```tsx file=example.ts
 "use server";
 
 const [data, err] = await incrementNumberAction({ number: 24 });

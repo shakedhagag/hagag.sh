@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "@fontsource-variable/figtree";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
 @import "./styles/shiki.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -240,9 +242,7 @@
   }
 }
 
-/* Markdown styles - matching Astro blog */
 .markdown {
-  line-height: 28px;
   --path: none;
   --radius-top: 12px;
   --radius-bottom: 12px;
@@ -311,6 +311,19 @@
   border-bottom-left-radius: var(--radius-bottom);
   padding-top: var(--padding-top);
   padding-bottom: var(--padding-bottom);
+}
+
+/* Remove custom padding/margins from pre elements inside Fumadocs CodeBlock */
+.markdown [data-language] pre {
+  padding: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Ensure CodeBlock container has proper spacing */
+.markdown [data-language] {
+  margin-bottom: 2rem;
 }
 
 .markdown pre code {
