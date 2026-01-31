@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import contentCollections from '@content-collections/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { devtools } from '@tanstack/devtools-vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
@@ -20,6 +21,7 @@ const config = defineConfig({
     }),
     tailwindcss(),
     tanstackStart(),
+    contentCollections(),
     viteReact({
       babel: {
         plugins: ['babel-plugin-react-compiler'],
