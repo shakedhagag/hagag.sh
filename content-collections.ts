@@ -13,6 +13,7 @@ const posts = defineCollection({
   directory: './src/blog',
   include: '**/*.{md,mdx}',
   schema: z.object({
+    content: z.string(),
     title: z.string(),
     date: z.string(),
     spoiler: z.string(),

@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { allPosts } from 'content-collections';
-import { Header } from '@/components/Header';
 
 type Post = {
   _meta: { path: string };
@@ -15,19 +14,18 @@ type Post = {
   content: string;
 };
 
-export const Route = createFileRoute('/blog/')({
-  component: BlogIndex,
+export const Route = createFileRoute('/posts/')({
+  component: PostsIndex,
 });
 
-function BlogIndex() {
+function PostsIndex() {
   // Posts are sorted by date
   const sortedPosts = (allPosts as Array<Post>)
     .filter(post => !post.group)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-12">
-      <Header />
+    <>
       <blockquote className="mb-8 border-l-2 pl-4 font-semibold text-foreground/65 text-lg italic dark:text-foreground/75">
         <svg
           className="mb-2 h-4 w-4 text-muted-foreground/60"
@@ -51,7 +49,7 @@ function BlogIndex() {
         {sortedPosts.map(post => (
           <Link
             key={post.slug}
-            to="/blog/$slug"
+            to="/posts/$slug"
             params={{ slug: post.slug }}
             className="block scale-100 rounded-md px-4 py-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
           >
@@ -64,6 +62,6 @@ function BlogIndex() {
           </Link>
         ))}
       </div>
-    </div>
+    </>
   );
 }

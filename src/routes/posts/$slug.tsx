@@ -1,6 +1,5 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { allPosts } from 'content-collections';
-import { Header } from '@/components/Header';
 import { Markdown } from '@/components/markdown';
 
 type Post = {
@@ -16,7 +15,7 @@ type Post = {
   content: string;
 };
 
-export const Route = createFileRoute('/blog/$slug')({
+export const Route = createFileRoute('/posts/$slug')({
   loader: ({ params }: { params: { slug: string } }) => {
     // First check if it's a group
     const groupedPosts = (allPosts as Array<Post>).filter(
@@ -55,7 +54,7 @@ function BlogPostOrGroup() {
   if (data.type === 'group') {
     const { group, posts } = data;
     return (
-      <div className="mx-auto max-w-3xl px-5 py-12">
+      <>
         <h2 className="font-bold text-foreground/45 text-sm uppercase leading-loose tracking-wider">
           {group.charAt(0).toUpperCase() + group.slice(1).replace(/-/g, ' ')}
         </h2>
@@ -63,7 +62,7 @@ function BlogPostOrGroup() {
           {posts.map(post => (
             <Link
               key={post.slug}
-              to="/blog/$slug"
+              to="/posts/$slug"
               params={{ slug: post.slug }}
               className="block scale-100 rounded-md px-4 py-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
             >
@@ -76,7 +75,7 @@ function BlogPostOrGroup() {
             </Link>
           ))}
         </div>
-      </div>
+      </>
     );
   }
 
@@ -91,8 +90,7 @@ function BlogPostOrGroup() {
   });
 
   return (
-    <article className="mx-auto max-w-3xl px-5 py-12">
-      <Header />
+    <article>
       <div className="flex justify-between">
         <h1 className="font-semibold text-3xl text-foreground">{post.title}</h1>
         <p className="mt-2 mb-6 text-right text-muted-foreground text-sm">

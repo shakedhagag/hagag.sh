@@ -5,7 +5,8 @@ export function Header() {
     <header className="mb-14 flex flex-row place-content-between">
       <Link
         to="/"
-        className="inline-block font-montserrat font-black text-2xl hover:scale-[1.02]"
+        className="inline-block font-black font-montserrat text-2xl hover:scale-[1.02]"
+        viewTransition
       >
         <span
           style={{
@@ -19,11 +20,8 @@ export function Header() {
           shagag
         </span>
         <br />
-        <span className="font-medium text-muted-foreground text-xs leading-none">
-          Frontend Engineer
-        </span>
       </Link>
-      <span className="relative top-[4px] italic">
+      <span className="relative top-1 italic">
         by
         <a
           href="https://github.com/shakedhagag"
