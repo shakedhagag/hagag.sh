@@ -18,7 +18,7 @@ const car: LuxuryCar = "Bugatti"; // Error! Type '"Bugatti"' is not assignable t
 
 This is too restrictive. Using a plain string type would solve the flexibility issue but loses the nice autocomplete suggestions:
 
-```ts
+```ts title="example.ts"
 type LuxuryCar = string;
 
 const car: LuxuryCar = "anything"; // Works, but no autocomplete suggestions
@@ -28,7 +28,7 @@ const car: LuxuryCar = "anything"; // Works, but no autocomplete suggestions
 
 Here's where TypeScript's type system shows its power. We can create a type that both suggests specific values AND allows any string using a clever intersection type:
 
-```ts
+```ts title="example.ts"
 type AutoComplete<T extends string> = T | (string & {});
 
 type LuxuryCar = AutoComplete<"Ferrari" | "Porsche" | "Lamborghini">;

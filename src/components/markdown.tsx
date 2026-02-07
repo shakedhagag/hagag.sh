@@ -108,7 +108,7 @@ export function Markdown({ content, className }: MarkdownProps) {
             };
 
             if (title) {
-              codeBlockProps['data-title'] = title;
+              codeBlockProps.title = title;
             }
 
             // Preserve pre element's class
