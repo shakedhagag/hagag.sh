@@ -17,7 +17,7 @@ export function Header() {
             color: 'transparent',
           }}
         >
-          shagag
+          hagag.sh
         </span>
         <br />
       </Link>

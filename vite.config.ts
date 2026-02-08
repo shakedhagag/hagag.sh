@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import { cloudflare } from '@cloudflare/vite-plugin';
 import contentCollections from '@content-collections/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { devtools } from '@tanstack/devtools-vite';
@@ -14,6 +15,7 @@ const config = defineConfig({
     },
   },
   plugins: [
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
     devtools(),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
