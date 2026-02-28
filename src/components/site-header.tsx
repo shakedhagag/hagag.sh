@@ -24,7 +24,7 @@ export function Header() {
       <span className="relative top-1 italic">
         by
         <a
-          href="https://github.com/shakedhagag"
+          href="https://github.com/shaked-frame"
           className="inline-block scale-100 active:scale-100"
         >
           <img
