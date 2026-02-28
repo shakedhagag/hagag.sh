@@ -10,9 +10,11 @@
   padding-bottom: 2rem;
 }
 
-.markdown a {
+.markdown a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
   border-bottom: 1px solid transparent;
   transition: border-bottom 0.2s ease-in-out;
+  font-weight: 500;
+  color: var(--link);
 }
 
 .markdown a:hover {
