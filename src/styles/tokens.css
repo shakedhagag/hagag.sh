@@ -1,0 +1,147 @@
+:root {
+    --font-fallback: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    --font-display: 'Inter Variable', 'Inter', var(--font-fallback);
+    --font-mono: 'IBM Plex Mono', monospace;
+    --base-hue: 266;
+    --white: oklch(100% 0 0);
+
+    --gray-000: oklch(99.5% 0 var(--base-hue));
+    --gray-100: oklch(99.24% 0.008 var(--base-hue));
+    --gray-200: oklch(98.08% 0.008 var(--base-hue));
+    --gray-300: oklch(95.94% 0.004 var(--base-hue));
+    --gray-400: oklch(94.3% 0.005 var(--base-hue));
+    --gray-500: oklch(91.83% 0.008 var(--base-hue));
+    --gray-600: oklch(90.18% 0.009 var(--base-hue));
+    --gray-700: oklch(87.68% 0.012 var(--base-hue));
+    --gray-800: oklch(80.94% 0.019 var(--base-hue));
+    --gray-900: oklch(62.57% 0.038 var(--base-hue));
+    --gray-1000: oklch(50.13% 0.047 var(--base-hue));
+    --gray-1100: oklch(40.47% 0.038 var(--base-hue));
+    --gray-1200: oklch(19.83% 0.01 var(--base-hue));
+
+    --blue-600: oklch(82% 0.082 var(--base-hue));
+    --blue-700: oklch(73.65% 0.124 var(--base-hue));
+    --blue-800: oklch(64.6% 0.172 var(--base-hue));
+    --blue-900: oklch(55.52% 0.223 var(--base-hue));
+
+    --green-600: oklch(93.1% 0.102 170);
+    --green-700: oklch(91.3% 0.134 170);
+    --green-800: oklch(89.62% 0.167 170);
+
+    --background: var(--gray-000);
+    --foreground: var(--gray-1200);
+    --card: var(--white);
+    --card-foreground: var(--gray-1200);
+    --popover: var(--white);
+    --popover-foreground: var(--gray-1200);
+    --primary: var(--blue-800);
+    --primary-foreground: var(--white);
+    --secondary: var(--gray-300);
+    --secondary-foreground: var(--gray-1200);
+    --muted: var(--gray-300);
+    --muted-foreground: var(--gray-1000);
+    --accent: var(--gray-400);
+    --accent-foreground: var(--gray-1200);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: var(--gray-500);
+    --input: var(--gray-500);
+    --ring: var(--blue-700);
+    --chart-1: var(--blue-900);
+    --chart-2: var(--blue-800);
+    --chart-3: var(--blue-700);
+    --chart-4: var(--green-700);
+    --chart-5: var(--green-600);
+    --radius: 0.625rem;
+    --sidebar: var(--white);
+    --sidebar-foreground: var(--gray-1200);
+    --sidebar-primary: var(--blue-800);
+    --sidebar-primary-foreground: var(--white);
+    --sidebar-accent: var(--gray-300);
+    --sidebar-accent-foreground: var(--gray-1200);
+    --sidebar-border: var(--gray-500);
+    --sidebar-ring: var(--blue-700);
+    --header: oklch(99.24% 0.008 var(--base-hue) / 40%);
+    --emphasis: oklch(from var(--blue-800) l c h / 7%);
+    --danger-emphasis: oklch(64.51% 0.204 22 / 10%);
+    --warning-emphasis: oklch(54.63% 0.14 60 / 10%);
+    --success-emphasis: oklch(88.54% 0.19 170 / 10%);
+    --text: var(--gray-1200);
+    --link: var(--blue-800);
+    --inlineCode-bg: oklch(from var(--blue-800) l c h / 12%);
+    --inlineCode-text: var(--gray-1200);
+    --spacing: 0.25rem;
+    --green: lab(76 -56 15);
+    --purple: lab(54 -16 -30);
+}
+
+.dark {
+    --base-hue: 262.04;
+    --white: oklch(100% 0 0);
+
+    --gray-000: oklch(12.92% 0.005 var(--base-hue));
+    --gray-100: oklch(14.68% 0.01 var(--base-hue));
+    --gray-200: oklch(16.75% 0.011 var(--base-hue));
+    --gray-300: oklch(17.8% 0.012 var(--base-hue));
+    --gray-400: oklch(24.84% 0.018 var(--base-hue));
+    --gray-500: oklch(28.69% 0.023 var(--base-hue));
+    --gray-600: oklch(35.33% 0.028 var(--base-hue));
+    --gray-700: oklch(41.6% 0.035 var(--base-hue));
+    --gray-800: oklch(48.49% 0.042 var(--base-hue));
+    --gray-900: oklch(56.78% 0.05 var(--base-hue));
+    --gray-1000: oklch(66.65% 0.04 var(--base-hue));
+    --gray-1100: oklch(77.16% 0.028 var(--base-hue));
+    --gray-1200: oklch(94.23% 0.006 var(--base-hue));
+
+    --blue-600: oklch(81.53% 0.078 var(--base-hue));
+    --blue-700: oklch(71.65% 0.122 var(--base-hue));
+    --blue-800: oklch(61.53% 0.1675 var(--base-hue));
+    --blue-900: oklch(53.19% 0.212 var(--base-hue));
+
+    --green-600: oklch(50.03% 0.101 170);
+    --green-700: oklch(60.62% 0.123 170);
+    --green-800: oklch(73.6% 0.150 170);
+
+    --background: var(--gray-100);
+    --foreground: var(--gray-1100);
+    --card: var(--gray-200);
+    --card-foreground: var(--gray-1200);
+    --popover: var(--gray-200);
+    --popover-foreground: var(--gray-1200);
+    --primary: var(--blue-800);
+    --primary-foreground: var(--white);
+    --secondary: var(--gray-300);
+    --secondary-foreground: var(--gray-1200);
+    --muted: var(--gray-300);
+    --muted-foreground: var(--gray-900);
+    --accent: var(--gray-400);
+    --accent-foreground: var(--gray-1200);
+    --destructive: oklch(64.51% 0.204 22);
+    --border: var(--gray-500);
+    --input: var(--gray-500);
+    --ring: var(--blue-700);
+    --chart-1: var(--blue-900);
+    --chart-2: var(--blue-800);
+    --chart-3: var(--blue-700);
+    --chart-4: var(--green-700);
+    --chart-5: var(--green-600);
+    --sidebar: var(--gray-000);
+    --sidebar-foreground: var(--gray-1100);
+    --sidebar-primary: var(--blue-800);
+    --sidebar-primary-foreground: var(--white);
+    --sidebar-accent: var(--gray-300);
+    --sidebar-accent-foreground: var(--gray-1200);
+    --sidebar-border: var(--gray-500);
+    --sidebar-ring: var(--blue-700);
+    --header: oklch(18.68% 0.01 var(--base-hue) / 40%);
+    --emphasis: oklch(64.6% 0.172 var(--base-hue) / 7%);
+    --danger-emphasis: oklch(64.51% 0.204 22 / 10%);
+    --warning-emphasis: oklch(76.91% 0.165 60 / 10%);
+    --success-emphasis: oklch(86.02% 0.176 170 / 10%);
+    --text: var(--gray-1100);
+    --link: var(--blue-700);
+    --inlineCode-bg: oklch(from var(--blue-800) l c h / 18%);
+    --inlineCode-text: var(--gray-1200);
+    --green: lab(76 -56 15);
+    --purple: lab(54 -16 -30);
+    --spacing: 0.25rem;
+}
