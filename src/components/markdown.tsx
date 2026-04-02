@@ -1,5 +1,3 @@
-// src/components/Markdown.tsx
-
 import { Link } from '@tanstack/react-router';
 import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock';
 import parse, {
@@ -8,11 +6,9 @@ import parse, {
   Element,
   type HTMLReactParserOptions,
 } from 'html-react-parser';
-import { useEffect, useState } from 'react';
-import { type MarkdownResult, renderMarkdown } from '@/utils/markdown';
 
 type MarkdownProps = {
-  content: string;
+  markup: string;
   className?: string;
 };
 
@@ -55,17 +51,7 @@ function convertAttribs(attribs: Record<string, string>) {
   return props;
 }
 
-export function Markdown({ content, className }: MarkdownProps) {
-  const [result, setResult] = useState<MarkdownResult | null>(null);
-
-  useEffect(() => {
-    renderMarkdown(content).then(setResult);
-  }, [content]);
-
-  if (!result) {
-    return <div className={className}>Loading...</div>;
-  }
-
+export function Markdown({ markup, className }: MarkdownProps) {
   const options: HTMLReactParserOptions = {
     replace: domNode => {
       if (domNode instanceof Element) {
@@ -139,12 +125,11 @@ export function Markdown({ content, className }: MarkdownProps) {
         }
 
         if (domNode.name === 'img') {
-          // Add lazy loading to images
           const imgProps = convertAttribs(domNode.attribs);
           return (
             <img
               {...imgProps}
-              loading="lazy"
+              decoding="async"
               className={`rounded-lg shadow-md ${imgProps.className || ''}`}
             />
           );
@@ -153,5 +138,5 @@ export function Markdown({ content, className }: MarkdownProps) {
     },
   };
 
-  return <div className={className}>{parse(result.markup, options)}</div>;
+  return <div className={className}>{parse(markup, options)}</div>;
 }
