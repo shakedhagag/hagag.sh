@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { allPosts } from 'content-collections';
 import { format } from 'date-fns';
+import { BottomBlurGradientMask } from '@/components/bottom-blur-gradient-mask';
 import { Markdown } from '@/components/markdown';
 
 type Post = {
@@ -14,6 +15,8 @@ type Post = {
   excerpt: string;
   headerImage?: string;
   content: string;
+  markup: string;
+  headings: Array<{ id: string; text: string; level: number }>;
 };
 
 export const Route = createFileRoute('/posts/$slug')({
@@ -83,16 +86,19 @@ function BlogPostOrGroup() {
   const formattedDate = format(new Date(post.date), 'MMMM d, yyyy');
 
   return (
-    <article>
-      <div className="flex flex-col">
-        <h1 className="font-semibold text-3xl text-card-foreground">
-          {post.title}
-        </h1>
-        <p className="mt-2 mb-4 text-left text-muted-foreground text-sm">
-          {formattedDate}
-        </p>
-      </div>
-      <Markdown content={post.content} className="markdown mt-10" />
-    </article>
+    <>
+      <article>
+        <div className="flex flex-col">
+          <h1 className="font-semibold text-3xl text-card-foreground">
+            {post.title}
+          </h1>
+          <p className="mt-2 mb-4 text-left text-muted-foreground text-sm">
+            {formattedDate}
+          </p>
+        </div>
+        <Markdown markup={post.markup} className="markdown mt-10" />
+      </article>
+      <BottomBlurGradientMask />
+    </>
   );
 }

@@ -1,6 +1,6 @@
 {
   "root": true,
-  "$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -87,8 +87,6 @@
         "noUnusedFunctionParameters": "error"
       },
       "nursery": {
-        "useConsistentArrowReturn": "error",
-        "noReactForwardRef": "error",
         "useSortedClasses": {
           "level": "warn",
           "fix": "safe",
@@ -148,7 +146,8 @@
           "options": {
             "style": "type"
           }
-        }
+        },
+        "useConsistentArrowReturn": "error"
       },
       "suspicious": {
         "noAlert": "error",
@@ -190,7 +189,8 @@
         "noVar": "error",
         "noWith": "error",
         "useDefaultSwitchClauseLast": "error",
-        "useErrorMessage": "error"
+        "useErrorMessage": "error",
+        "noReactForwardRef": "error"
       }
     }
   },

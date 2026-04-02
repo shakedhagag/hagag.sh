@@ -2,6 +2,7 @@
 import { defineCollection, defineConfig } from '@content-collections/core'
 import { z } from 'zod'
 import matter from 'gray-matter'
+import { renderMarkdown } from './src/utils/markdown'
 
 function extractFrontMatter(content: string) {
   const { data, content: body, excerpt } = matter(content, { excerpt: true })
@@ -20,8 +21,9 @@ const posts = defineCollection({
     group: z.string().optional(),
     customUrl: z.string().optional(),
   }),
-  transform: ({ content, ...post }) => {
+  transform: async ({ content, ...post }) => {
     const frontMatter = extractFrontMatter(content)
+    const { markup, headings } = await renderMarkdown(frontMatter.body)
 
     // Extract header image (first image in the document)
     const headerImageMatch = content.match(/!\[([^\]]*)\]\(([^)]+)\)/)
@@ -34,6 +36,8 @@ const posts = defineCollection({
       spoiler: post.spoiler, // Use schema-validated spoiler
       headerImage,
       content: frontMatter.body,
+      markup,
+      headings,
     }
   },
 })

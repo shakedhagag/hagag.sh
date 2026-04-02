@@ -12,6 +12,8 @@ type Post = {
   excerpt: string;
   headerImage?: string;
   content: string;
+  markup: string;
+  headings: Array<{ id: string; text: string; level: number }>;
 };
 
 export const Route = createFileRoute('/posts/')({
