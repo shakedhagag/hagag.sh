@@ -4,9 +4,10 @@
   box-sizing: border-box;
 }
 
-  *, *::before, *::after { box-sizing: border-box; }
   *:not(dialog) { margin: 0; }
-  /* 3. Enable keyword animations */@media (prefers-reduced-motion: no-preference) {
+
+  /* 3. Enable keyword animations */
+  @media (prefers-reduced-motion: no-preference) {
     html {
       interpolate-size: allow-keywords;
     }
@@ -17,6 +18,11 @@
     line-height: 1.5;
     /* 5. Improve text rendering */
     -webkit-font-smoothing: antialiased;
+  }
+
+  html {
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
   }
 
   /* 6. Improve media defaults */
@@ -48,5 +54,10 @@
   */
   #root, #__next {
     isolation: isolate;
+  }
+
+  ::selection {
+    background-color: var(--emphasis, var(--primary, Highlight));
+    color: var(--accent, var(--primary-foreground, HighlightText));
   }
 }
