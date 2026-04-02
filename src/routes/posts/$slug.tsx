@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { allPosts } from 'content-collections';
+import { format } from 'date-fns';
 import { Markdown } from '@/components/markdown';
 
 type Post = {
@@ -46,8 +47,6 @@ export const Route = createFileRoute('/posts/$slug')({
   component: BlogPostOrGroup,
 });
 
-const whitespaceRegex = /\s+/ as RegExp;
-
 function BlogPostOrGroup() {
   const data = Route.useLoaderData();
 
@@ -55,7 +54,7 @@ function BlogPostOrGroup() {
     const { group, posts } = data;
     return (
       <>
-        <h2 className="font-bold text-foreground/45 text-sm uppercase leading-loose tracking-wider">
+        <h2 className="font-bold text-card-foreground text-sm uppercase leading-loose tracking-wider">
           {group.charAt(0).toUpperCase() + group.slice(1).replace(/-/g, ' ')}
         </h2>
         <div className="relative top-5 flex flex-col gap-8">
@@ -80,30 +79,17 @@ function BlogPostOrGroup() {
   }
 
   const post = data.post;
-  const wordCount = post.content.split(whitespaceRegex).length;
-  const readTime = Math.ceil(wordCount / 200);
 
-  const formattedDate = new Date(post.date).toLocaleDateString('en-US', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  const formattedDate = format(new Date(post.date), 'MMMM d, yyyy');
 
   return (
     <article>
-      <div className="flex justify-between">
-        <h1 className="font-semibold text-3xl text-foreground">{post.title}</h1>
-        <p className="mt-2 mb-6 text-right text-muted-foreground text-sm">
+      <div className="flex flex-col">
+        <h1 className="font-semibold text-3xl text-card-foreground">
+          {post.title}
+        </h1>
+        <p className="mt-2 mb-4 text-left text-muted-foreground text-sm">
           {formattedDate}
-        </p>
-      </div>
-      <div className="mt-2 flex flex-col">
-        <p className="mt-2 text-[13px] text-muted-foreground/50">
-          word count：{wordCount}
-        </p>
-        <p className="mt-2 text-[13px] text-muted-foreground/50">
-          estimated reading time：{readTime}{' '}
-          {readTime === 1 ? 'minute' : 'minutes'}
         </p>
       </div>
       <Markdown content={post.content} className="markdown mt-10" />

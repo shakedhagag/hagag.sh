@@ -57,7 +57,6 @@
   }
 
   ::selection {
-    background-color: var(--emphasis, var(--primary, Highlight));
-    color: var(--accent, var(--primary-foreground, HighlightText));
-  }
+    background-color: var(--emphasis, var(--primary ));
+    color: var(--accent-foreground, var(--primary-foreground )); }
 }
