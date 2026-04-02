@@ -5,6 +5,7 @@ import parse, {
   Element,
   type HTMLReactParserOptions,
 } from 'html-react-parser';
+import { useEffect, useState } from 'react';
 import { MarkdownCodeBlock } from '@/components/markdown-code-block';
 
 type MarkdownProps = {
@@ -12,7 +13,6 @@ type MarkdownProps = {
   className?: string;
 };
 
-// Convert HTML style string to React style object
 function parseStyle(styleString: string): React.CSSProperties {
   const style: Record<string, string> = {};
   if (!styleString) return style as React.CSSProperties;
@@ -20,7 +20,6 @@ function parseStyle(styleString: string): React.CSSProperties {
   styleString.split(';').forEach(rule => {
     const [property, value] = rule.split(':').map(s => s.trim());
     if (property && value) {
-      // Convert kebab-case to camelCase
       const camelProperty = property.replace(/-([a-z])/g, (_, letter) =>
         letter.toUpperCase()
       );
@@ -31,16 +30,13 @@ function parseStyle(styleString: string): React.CSSProperties {
   return style as React.CSSProperties;
 }
 
-// Convert HTML attributes to React props
 function convertAttribs(attribs: Record<string, string>) {
   const props: Record<string, any> = { ...attribs };
 
-  // Convert style string to object
   if (props.style && typeof props.style === 'string') {
     props.style = parseStyle(props.style);
   }
 
-  // Convert class to className
   if (props.class) {
     props.className = props.class;
     delete props.class;
@@ -50,6 +46,22 @@ function convertAttribs(attribs: Record<string, string>) {
 }
 
 export function Markdown({ markup, className }: MarkdownProps) {
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) {
+    return (
+      <div
+        className={className}
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: markup }}
+      />
+    );
+  }
+
   const options: HTMLReactParserOptions = {
     replace: domNode => {
       if (domNode instanceof Element) {
@@ -57,12 +69,9 @@ export function Markdown({ markup, className }: MarkdownProps) {
           return <MarkdownCodeBlock preElement={domNode} options={options} />;
         }
 
-        // Customize rendering of specific elements
         if (domNode.name === 'a') {
-          // Handle links
           const href = domNode.attribs.href;
           if (href?.startsWith('/')) {
-            // Internal link - use your router's Link component
             return (
               <Link to={href}>
                 {domToReact(domNode.children as Array<DOMNode>, options)}
@@ -87,3 +96,4 @@ export function Markdown({ markup, className }: MarkdownProps) {
 
   return <div className={className}>{parse(markup, options)}</div>;
 }
+

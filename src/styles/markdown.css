@@ -81,7 +81,7 @@
 
 /* Ensure CodeBlock container has proper spacing */
 .markdown [data-language] {
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .markdown pre code {
