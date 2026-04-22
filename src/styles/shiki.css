@@ -22,8 +22,9 @@ code[data-theme*=' '] span {
 /* Line styling */
 pre code[data-theme*=' '] [data-line] {
   position: relative;
-  padding-left: var(--padding-left);
-  padding-right: var(--padding-right);
+  display: block;
+  padding-left: var(--padding-left, 1rem);
+  padding-right: var(--padding-right, 1rem);
 }
 
 .has-focused pre code[data-theme*=' '] [data-line]:not(.focused) {
@@ -37,40 +38,55 @@ pre code[data-theme*=' '] [data-line] {
 
 /* Line numbers */
 code[data-line-numbers] {
+  display: grid;
+  min-width: 100%;
+  white-space: pre;
+  border: 0;
+  background: transparent;
+  padding: 0;
   counter-reset: line;
+  box-decoration-break: clone;
 }
 
 code[data-line-numbers] > [data-line] {
   counter-increment: line;
-  padding-left: calc(var(--padding-left) + 7 * var(--spacing));
-  position: relative;
+  display: inline-block;
+  width: 100%;
   min-height: 1lh;
 }
 
 code[data-line-numbers] > [data-line]::before {
   content: counter(line);
-  position: absolute;
-  left: calc(var(--spacing) * 1);
+  display: inline-block;
+  position: sticky;
+  left: 0;
+  z-index: 1;
   color: color-mix(
     in oklab,
     var(--counter-color, var(--muted-foreground)) 60%,
     transparent
   );
-  top: 0;
-  width: calc(7 * var(--spacing));
+  width: var(--line-number-width, calc(7 * var(--spacing)));
+  padding-right: calc(var(--spacing) * 2);
+  margin-right: calc(var(--spacing) * 2);
   text-align: right;
+  background: var(--shiki-light-bg, transparent);
 }
 
-code[data-line-numbers-max-digits='2'] > [data-line]::before {
-  width: calc(8 * var(--spacing));
+.dark code[data-line-numbers] > [data-line]::before {
+  background: var(--shiki-dark-bg, transparent);
 }
 
-code[data-line-numbers-max-digits='3'] > [data-line]::before {
-  width: calc(9 * var(--spacing));
+code[data-line-numbers-max-digits='2'] {
+  --line-number-width: calc(8 * var(--spacing));
 }
 
-code[data-line-numbers-max-digits='4'] > [data-line]::before {
-  width: calc(10 * var(--spacing));
+code[data-line-numbers-max-digits='3'] {
+  --line-number-width: calc(9 * var(--spacing));
+}
+
+code[data-line-numbers-max-digits='4'] {
+  --line-number-width: calc(10 * var(--spacing));
 }
 
 /* Diff styling */
@@ -103,7 +119,6 @@ code[data-line-numbers-max-digits='4'] > [data-line]::before {
 /* Highlighted lines */
 [data-highlighted-line] {
   --counter-color: var(--primary);
-  padding-left: calc(var(--padding-left) - 2px);
   border-left: 2px solid color-mix(in oklab, var(--primary) 50%, transparent);
   background-color: color-mix(in oklab, var(--primary) 10%, transparent);
 }
