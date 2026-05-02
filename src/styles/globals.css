@@ -30,7 +30,8 @@
   --tw-prose-td-borders: var(--color-border);
 }
 
-.prose-blog :where(h1, h2, h3, h4, h5, h6, a):not(:where(.not-prose, .not-prose *)) {
+.prose-blog
+  :where(h1, h2, h3, h4, h5, h6, a):not(:where(.not-prose, .not-prose *)) {
   font-family: var(--font-heading);
 }
 
@@ -142,8 +143,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-sans: "Inter Variable", sans-serif;
-  --font-heading: "Manrope Variable", sans-serif;
+  --font-sans: "Manrope Variable", sans-serif;
+  --font-heading: "Inter Variable", sans-serif;
 }
 
 @layer base {

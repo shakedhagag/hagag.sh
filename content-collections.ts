@@ -3,7 +3,10 @@ import { defineCollection, defineConfig } from '@content-collections/core'
 import { compileMDX } from '@content-collections/mdx'
 import { z } from 'zod'
 import matter from 'gray-matter'
-import { renderMarkdown } from './src/utils/markdown'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypePrettyCode from 'rehype-pretty-code'
+import rehypeSlug from 'rehype-slug'
+import remarkGfm from 'remark-gfm'
 
 function extractFrontMatter(content: string) {
   const { data, content: body, excerpt } = matter(content, { excerpt: true })
@@ -24,8 +27,29 @@ const posts = defineCollection({
   }),
   transform: async ({ content, ...post }, context) => {
     const frontMatter = extractFrontMatter(content)
-    const mdx = await compileMDX(context, { ...post, content: frontMatter.body })
-    const { markup, headings } = await renderMarkdown(frontMatter.body)
+    const mdx = await compileMDX(context, { ...post, content: frontMatter.body }, {
+      remarkPlugins: [remarkGfm],
+      rehypePlugins: [
+        rehypeSlug,
+        [
+          rehypeAutolinkHeadings,
+          {
+            behavior: 'wrap',
+            properties: { className: ['anchor'] },
+          },
+        ],
+        [
+          rehypePrettyCode,
+          {
+            theme: {
+              dark: 'github-dark',
+              light: 'github-light',
+            },
+            defaultLang: 'text',
+          },
+        ],
+      ],
+    })
 
     // Extract header image (first image in the document)
     const headerImageMatch = content.match(/!\[([^\]]*)\]\(([^)]+)\)/)
@@ -39,8 +63,6 @@ const posts = defineCollection({
       headerImage,
       content: frontMatter.body,
       mdx,
-      markup,
-      headings,
     }
   },
 })

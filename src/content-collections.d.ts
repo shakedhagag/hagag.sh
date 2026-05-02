@@ -10,8 +10,7 @@ declare module 'content-collections' {
     excerpt: string;
     headerImage?: string;
     content: string;
-    markup: string;
-    headings: Array<{ id: string; text: string; level: number }>;
+    mdx: string;
   };
 
   export const allPosts: Array<Post>;

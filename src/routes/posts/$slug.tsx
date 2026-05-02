@@ -1,8 +1,29 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { allPosts } from "content-collections";
-import { format } from "date-fns";
-import { BottomBlurGradientMask } from "@/components/bottom-blur-gradient-mask";
-import { Markdown } from "@/components/markdown";
+import { createFileRoute, Link, notFound } from '@tanstack/react-router';
+import { MDXContent } from '@content-collections/mdx/react';
+import { allPosts } from 'content-collections';
+import { format } from 'date-fns';
+import { BottomBlurGradientMask } from '@/components/bottom-blur-gradient-mask';
+
+const mdxComponents = {
+  a: ({ href = '', ...props }: React.ComponentProps<'a'>) =>
+    href.startsWith('/') ? (
+      <Link to={href} {...props} />
+    ) : (
+      <a href={href} {...props} />
+    ),
+  img: ({
+    className = '',
+    alt = '',
+    ...props
+  }: React.ComponentProps<'img'>) => (
+    <img
+      alt={alt}
+      className={`rounded-lg shadow-md ${className}`}
+      decoding="async"
+      {...props}
+    />
+  ),
+};
 
 type Post = {
   _meta: { path: string };
@@ -15,35 +36,34 @@ type Post = {
   excerpt: string;
   headerImage?: string;
   content: string;
-  markup: string;
-  headings: Array<{ id: string; text: string; level: number }>;
+  mdx: string;
 };
 
-export const Route = createFileRoute("/posts/$slug")({
+export const Route = createFileRoute('/posts/$slug')({
   loader: ({ params }: { params: { slug: string } }) => {
     // First check if it's a group
     const groupedPosts = (allPosts as Array<Post>).filter(
-      (post) => post.group === params.slug,
+      post => post.group === params.slug
     );
 
     if (groupedPosts.length > 0) {
       return {
-        type: "group" as const,
+        type: 'group' as const,
         group: params.slug,
         posts: groupedPosts.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         ),
       };
     }
 
     // Otherwise check if it's a post
-    const post = (allPosts as Array<Post>).find((p) => p.slug === params.slug);
+    const post = (allPosts as Array<Post>).find(p => p.slug === params.slug);
     if (!post) {
       throw notFound();
     }
 
     return {
-      type: "post" as const,
+      type: 'post' as const,
       post,
     };
   },
@@ -53,15 +73,15 @@ export const Route = createFileRoute("/posts/$slug")({
 function BlogPostOrGroup() {
   const data = Route.useLoaderData();
 
-  if (data.type === "group") {
+  if (data.type === 'group') {
     const { group, posts } = data;
     return (
       <>
         <h2 className="font-bold text-card-foreground text-sm uppercase leading-loose tracking-wider">
-          {group.charAt(0).toUpperCase() + group.slice(1).replace(/-/g, " ")}
+          {group.charAt(0).toUpperCase() + group.slice(1).replace(/-/g, ' ')}
         </h2>
         <div className="relative top-5 flex flex-col gap-8">
-          {posts.map((post) => (
+          {posts.map(post => (
             <Link
               key={post.slug}
               to="/posts/$slug"
@@ -83,7 +103,7 @@ function BlogPostOrGroup() {
 
   const post = data.post;
 
-  const formattedDate = format(new Date(post.date), "MMMM d, yyyy");
+  const formattedDate = format(new Date(post.date), 'MMMM d, yyyy');
 
   return (
     <>
@@ -96,7 +116,9 @@ function BlogPostOrGroup() {
             {formattedDate}
           </p>
         </div>
-        <Markdown markup={post.markup} className="markdown prose prose-blog mt-10" />
+        <div className="markdown prose prose-blog mt-10">
+          <MDXContent code={post.mdx} components={mdxComponents} />
+        </div>
       </article>
       <BottomBlurGradientMask />
     </>
