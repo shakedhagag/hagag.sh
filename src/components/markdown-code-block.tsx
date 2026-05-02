@@ -1,4 +1,3 @@
-import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock';
 import {
   type DOMNode,
   domToReact,
@@ -66,6 +65,7 @@ export function MarkdownCodeBlock({
     codeElement.attribs.title ||
     '';
 
+  const preProps = convertAttribs(preElement.attribs);
   const codeProps = convertAttribs(codeElement.attribs);
 
   const codeElementJSX = (
@@ -74,22 +74,20 @@ export function MarkdownCodeBlock({
     </code>
   );
 
-  const codeBlockProps: Record<string, any> = {
-    'data-language': language,
-  };
-
-  if (title) {
-    codeBlockProps.title = title;
-  }
-
-  if (preElement.attribs.class) {
-    codeBlockProps.className = preElement.attribs.class;
-  }
-
   return (
-    <CodeBlock {...codeBlockProps}>
-      <Pre>{codeElementJSX}</Pre>
-    </CodeBlock>
+    <figure className="not-prose my-5 overflow-hidden rounded-xl border bg-card shadow-sm" data-language={language}>
+      {(title || language) && (
+        <figcaption className="border-b px-4 py-2 font-medium text-muted-foreground text-xs">
+          {title || language}
+        </figcaption>
+      )}
+      <pre
+        {...preProps}
+        className={`m-0 overflow-x-auto p-4 text-sm ${preProps.className || ''}`}
+      >
+        {codeElementJSX}
+      </pre>
+    </figure>
   );
 }
 

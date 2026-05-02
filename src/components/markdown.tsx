@@ -1,12 +1,12 @@
-import { Link } from '@tanstack/react-router';
+import { Link } from "@tanstack/react-router";
 import parse, {
   type DOMNode,
   domToReact,
   Element,
   type HTMLReactParserOptions,
-} from 'html-react-parser';
-import { useEffect, useState } from 'react';
-import { MarkdownCodeBlock } from '@/components/markdown-code-block';
+} from "html-react-parser";
+import { useEffect, useState } from "react";
+import { MarkdownCodeBlock } from "@/components/markdown-code-block";
 
 type MarkdownProps = {
   markup: string;
@@ -17,11 +17,11 @@ function parseStyle(styleString: string): React.CSSProperties {
   const style: Record<string, string> = {};
   if (!styleString) return style as React.CSSProperties;
 
-  styleString.split(';').forEach(rule => {
-    const [property, value] = rule.split(':').map(s => s.trim());
+  styleString.split(";").forEach((rule) => {
+    const [property, value] = rule.split(":").map((s) => s.trim());
     if (property && value) {
       const camelProperty = property.replace(/-([a-z])/g, (_, letter) =>
-        letter.toUpperCase()
+        letter.toUpperCase(),
       );
       style[camelProperty] = value;
     }
@@ -33,7 +33,7 @@ function parseStyle(styleString: string): React.CSSProperties {
 function convertAttribs(attribs: Record<string, string>) {
   const props: Record<string, any> = { ...attribs };
 
-  if (props.style && typeof props.style === 'string') {
+  if (props.style && typeof props.style === "string") {
     props.style = parseStyle(props.style);
   }
 
@@ -63,15 +63,15 @@ export function Markdown({ markup, className }: MarkdownProps) {
   }
 
   const options: HTMLReactParserOptions = {
-    replace: domNode => {
+    replace: (domNode) => {
       if (domNode instanceof Element) {
-        if (domNode.name === 'pre') {
+        if (domNode.name === "pre") {
           return <MarkdownCodeBlock preElement={domNode} options={options} />;
         }
 
-        if (domNode.name === 'a') {
+        if (domNode.name === "a") {
           const href = domNode.attribs.href;
-          if (href?.startsWith('/')) {
+          if (href?.startsWith("/")) {
             return (
               <Link to={href}>
                 {domToReact(domNode.children as Array<DOMNode>, options)}
@@ -80,13 +80,13 @@ export function Markdown({ markup, className }: MarkdownProps) {
           }
         }
 
-        if (domNode.name === 'img') {
+        if (domNode.name === "img") {
           const imgProps = convertAttribs(domNode.attribs);
           return (
             <img
               {...imgProps}
               decoding="async"
-              className={`rounded-lg shadow-md ${imgProps.className || ''}`}
+              className={`rounded-lg shadow-md ${imgProps.className || ""}`}
             />
           );
         }
@@ -96,4 +96,3 @@ export function Markdown({ markup, className }: MarkdownProps) {
 
   return <div className={className}>{parse(markup, options)}</div>;
 }
-

@@ -1,5 +1,6 @@
 // content-collections.ts
 import { defineCollection, defineConfig } from '@content-collections/core'
+import { compileMDX } from '@content-collections/mdx'
 import { z } from 'zod'
 import matter from 'gray-matter'
 import { renderMarkdown } from './src/utils/markdown'
@@ -21,8 +22,9 @@ const posts = defineCollection({
     group: z.string().optional(),
     customUrl: z.string().optional(),
   }),
-  transform: async ({ content, ...post }) => {
+  transform: async ({ content, ...post }, context) => {
     const frontMatter = extractFrontMatter(content)
+    const mdx = await compileMDX(context, { ...post, content: frontMatter.body })
     const { markup, headings } = await renderMarkdown(frontMatter.body)
 
     // Extract header image (first image in the document)
@@ -36,6 +38,7 @@ const posts = defineCollection({
       spoiler: post.spoiler, // Use schema-validated spoiler
       headerImage,
       content: frontMatter.body,
+      mdx,
       markup,
       headings,
     }

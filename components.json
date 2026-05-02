@@ -5,13 +5,13 @@
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "src/styles.css",
+    "css": "src/styles/globals.css",
     "baseColor": "neutral",
     "cssVariables": true,
-    "prefix": ""
+    "prefix": "shagag"
   },
-  "iconLibrary": "lucide",
-  "rtl": false,
+  "iconLibrary": "phosphor",
+  "rtl": true,
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
@@ -19,7 +19,7 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "registries": {
-    "@coss": "https://coss.com/ui/r/{name}.json"
-  }
+  "menuColor": "default-translucent",
+  "menuAccent": "subtle",
+  "registries": {}
 }
