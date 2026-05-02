@@ -2,8 +2,11 @@ import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { allPosts } from 'content-collections';
 import { format } from 'date-fns';
 import { BottomBlurGradientMask } from '@/components/bottom-blur-gradient-mask';
+import { mdxComponents } from '@/components/mdx-components';
 
-const postModules = import.meta.glob<{ default: React.ComponentType }>(
+const postModules = import.meta.glob<{
+  default: React.ComponentType<{ components?: Record<string, React.ComponentType<any>> }>;
+}>(
   '/src/blog/**/*.mdx',
   { eager: true }
 );
@@ -106,7 +109,7 @@ function BlogPostOrGroup() {
           </p>
         </div>
         <div className="markdown prose prose-blog mt-10">
-          {PostContent ? <PostContent /> : null}
+          {PostContent ? <PostContent components={mdxComponents} /> : null}
         </div>
       </article>
       <BottomBlurGradientMask />

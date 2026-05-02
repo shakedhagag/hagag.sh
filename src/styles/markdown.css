@@ -21,16 +21,23 @@
   :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
   position: relative;
   font-family: var(--font-heading);
+  margin-top: 2rem;
+  line-height: 2.7rem;
+  margin-bottom: 0.5rem;
+  scroll-margin-top: 1.5rem;
+  font-weight: var(--font-weight-700);
+  text-wrap: balance;
 }
 
-.prose-blog :where(a):not(:where(.not-prose, .not-prose *)) {
+.prose-blog :where(a):not(:where(.not-prose, .not-prose *, .heading-anchor)) {
   display: inline-block;
   position: relative;
   font-family: var(--font-heading);
   text-decoration: none;
 }
 
-.prose-blog :where(a):not(:where(.not-prose, .not-prose *))::after {
+.prose-blog
+  :where(a):not(:where(.not-prose, .not-prose *, .heading-anchor))::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -43,26 +50,98 @@
   transition: transform 0.3s ease-out;
 }
 
-.prose-blog :where(a):not(:where(.not-prose, .not-prose *)):hover::after {
+.prose-blog
+  :where(a):not(
+    :where(.not-prose, .not-prose *, .heading-anchor)
+  ):hover::after {
   transform: scaleX(1);
 }
 
-.prose-blog :where(h1, h2, h3, h4, h5, h6) > a.anchor {
-  position: relative;
-  text-decoration: none;
-}
-
-.prose-blog :where(h1, h2, h3, h4, h5, h6) > a.anchor::before {
-  content: "#";
+.prose-blog :where(h1, h2, h3, h4, h5, h6) > .heading-anchor {
+  display: inline-block;
   position: absolute;
   left: -1em;
+  text-decoration: none;
   color: var(--color-foreground);
   opacity: 0;
   transition: opacity 150ms ease;
 }
 
-.prose-blog :where(h1, h2, h3, h4, h5, h6):hover > a.anchor::before {
+.prose-blog :where(h1, h2, h3, h4, h5, h6):hover > .heading-anchor {
   opacity: 1;
+}
+
+.prose-blog :where(h1, h2, h3, h4, h5, h6) > .heading-link {
+  color: inherit;
+}
+
+.code-block {
+  position: relative;
+  margin: 1.25rem 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--shiki-light-bg);
+}
+
+.dark .code-block {
+  background: var(--shiki-dark-bg);
+}
+
+.code-block-copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: color-mix(
+    in oklab,
+    var(--shiki-light-bg, var(--color-background)) 85%,
+    transparent
+  );
+  padding: 0.25rem 0.55rem;
+  color: var(--color-muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1;
+  backdrop-filter: blur(8px);
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+.dark .code-block-copy {
+  background: color-mix(
+    in oklab,
+    var(--shiki-dark-bg, var(--color-background)) 85%,
+    transparent
+  );
+}
+
+.code-block-copy:hover {
+  border-color: var(--color-muted-foreground);
+  color: var(--color-foreground);
+}
+
+.code-block-copy svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.code-block pre {
+  background: transparent !important;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.code-block pre > code[data-theme*=" "] {
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 100%;
+  padding: 1rem 5rem 1rem 1rem !important;
 }
 
 .markdown {
