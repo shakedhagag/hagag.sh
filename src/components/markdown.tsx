@@ -5,7 +5,6 @@ import parse, {
   Element,
   type HTMLReactParserOptions,
 } from "html-react-parser";
-import { useEffect, useState } from "react";
 import { MarkdownCodeBlock } from "@/components/markdown-code-block";
 
 type MarkdownProps = {
@@ -45,23 +44,7 @@ function convertAttribs(attribs: Record<string, string>) {
   return props;
 }
 
-export function Markdown({ markup, className }: MarkdownProps) {
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  if (!isHydrated) {
-    return (
-      <div
-        className={className}
-        suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: markup }}
-      />
-    );
-  }
-
+export function aarkdown({ markup, className }: MarkdownProps) {
   const options: HTMLReactParserOptions = {
     replace: (domNode) => {
       if (domNode instanceof Element) {

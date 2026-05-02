@@ -83,4 +83,4 @@ export const markdownCodeTransformers = [
     },
   },
   transformerNotationWordHighlight(),
-] as ShikiTransformer[];
+] as Array<ShikiTransformer>;

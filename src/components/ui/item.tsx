@@ -1,4 +1,4 @@
-import * as React from "react"
+import type * as React from "react"
 import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -35,7 +35,7 @@ function ItemSeparator({
 }
 
 const itemVariants = cva(
-  "shagag:group/item shagag:flex shagag:w-full shagag:flex-wrap shagag:items-center shagag:rounded-2xl shagag:border shagag:text-sm shagag:transition-colors shagag:duration-100 shagag:outline-none shagag:focus-visible:border-ring shagag:focus-visible:ring-[3px] shagag:focus-visible:ring-ring/50 shagag:[a]:transition-colors shagag:[a]:hover:bg-muted",
+  "shagag:group/item shagag:flex shagag:w-full shagag:flex-wrap shagag:items-center shagag:rounded-2xl shagag:border shagag:text-sm shagag:outline-none shagag:transition-colors shagag:duration-100 shagag:focus-visible:border-ring shagag:focus-visible:ring-[3px] shagag:focus-visible:ring-ring/50 shagag:[a]:transition-colors shagag:[a]:hover:bg-muted",
   {
     variants: {
       variant: {
@@ -46,7 +46,7 @@ const itemVariants = cva(
       size: {
         default: "shagag:gap-3.5 shagag:px-4 shagag:py-3.5",
         sm: "shagag:gap-3.5 shagag:px-3.5 shagag:py-3",
-        xs: "shagag:gap-2.5 shagag:px-3 shagag:py-2.5 shagag:in-data-[slot=dropdown-menu-content]:p-0",
+        xs: "shagag:gap-2.5 shagag:in-data-[slot=dropdown-menu-content]:p-0 shagag:px-3 shagag:py-2.5",
       },
     },
     defaultVariants: {
@@ -130,7 +130,7 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="item-title"
       className={cn(
-        "shagag:line-clamp-1 shagag:flex shagag:w-fit shagag:items-center shagag:gap-2 shagag:text-sm shagag:leading-snug shagag:font-medium shagag:underline-offset-4",
+        "shagag:line-clamp-1 shagag:flex shagag:w-fit shagag:items-center shagag:gap-2 shagag:font-medium shagag:text-sm shagag:leading-snug shagag:underline-offset-4",
         className
       )}
       {...props}
@@ -143,7 +143,7 @@ function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
     <p
       data-slot="item-description"
       className={cn(
-        "shagag:line-clamp-2 shagag:text-start shagag:text-sm shagag:font-normal shagag:text-muted-foreground shagag:[&>a]:underline shagag:[&>a]:underline-offset-4 shagag:[&>a:hover]:text-primary",
+        "shagag:line-clamp-2 shagag:text-start shagag:font-normal shagag:text-muted-foreground shagag:text-sm shagag:[&>a:hover]:text-primary shagag:[&>a]:underline shagag:[&>a]:underline-offset-4",
         className
       )}
       {...props}
