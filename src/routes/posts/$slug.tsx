@@ -1,29 +1,12 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
-import { MDXContent } from '@content-collections/mdx/react';
 import { allPosts } from 'content-collections';
 import { format } from 'date-fns';
 import { BottomBlurGradientMask } from '@/components/bottom-blur-gradient-mask';
 
-const mdxComponents = {
-  a: ({ href = '', ...props }: React.ComponentProps<'a'>) =>
-    href.startsWith('/') ? (
-      <Link to={href} {...props} />
-    ) : (
-      <a href={href} {...props} />
-    ),
-  img: ({
-    className = '',
-    alt = '',
-    ...props
-  }: React.ComponentProps<'img'>) => (
-    <img
-      alt={alt}
-      className={`rounded-lg shadow-md ${className}`}
-      decoding="async"
-      {...props}
-    />
-  ),
-};
+const postModules = import.meta.glob<{ default: React.ComponentType }>(
+  '/src/blog/**/*.mdx',
+  { eager: true }
+);
 
 type Post = {
   _meta: { path: string };
@@ -36,7 +19,6 @@ type Post = {
   excerpt: string;
   headerImage?: string;
   content: string;
-  mdx: string;
 };
 
 export const Route = createFileRoute('/posts/$slug')({
@@ -62,8 +44,14 @@ export const Route = createFileRoute('/posts/$slug')({
       throw notFound();
     }
 
+    const contentPath = `/src/blog/${post._meta.path}.mdx`;
+    if (!postModules[contentPath]) {
+      throw notFound();
+    }
+
     return {
       type: 'post' as const,
+      contentPath,
       post,
     };
   },
@@ -102,6 +90,7 @@ function BlogPostOrGroup() {
   }
 
   const post = data.post;
+  const PostContent = postModules[data.contentPath]?.default;
 
   const formattedDate = format(new Date(post.date), 'MMMM d, yyyy');
 
@@ -117,7 +106,7 @@ function BlogPostOrGroup() {
           </p>
         </div>
         <div className="markdown prose prose-blog mt-10">
-          <MDXContent code={post.mdx} components={mdxComponents} />
+          {PostContent ? <PostContent /> : null}
         </div>
       </article>
       <BottomBlurGradientMask />

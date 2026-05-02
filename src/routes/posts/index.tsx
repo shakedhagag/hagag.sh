@@ -12,7 +12,6 @@ type Post = {
   excerpt: string;
   headerImage?: string;
   content: string;
-  mdx: string;
 };
 
 export const Route = createFileRoute('/posts/')({

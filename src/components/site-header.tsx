@@ -5,13 +5,13 @@ export function Header() {
     <header className="mb-14 flex flex-row place-content-between">
       <Link
         to="/"
-        className="inline-block font-black font-montserrat text-2xl hover:scale-[1.02]"
+        className="inline-block font-black font-sans text-2xl hover:scale-[1.02]"
         viewTransition
       >
         <span
           style={{
             backgroundImage:
-              'linear-gradient(45deg, var(--green), var(--purple))',
+              'linear-gradient(45deg, var(--accent-foreground), var(--accent))',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             color: 'transparent',
