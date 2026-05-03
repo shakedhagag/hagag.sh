@@ -5,11 +5,10 @@ import { BottomBlurGradientMask } from '@/components/bottom-blur-gradient-mask';
 import { mdxComponents } from '@/components/mdx-components';
 
 const postModules = import.meta.glob<{
-  default: React.ComponentType<{ components?: Record<string, React.ComponentType<any>> }>;
-}>(
-  '/src/blog/**/*.mdx',
-  { eager: true }
-);
+  default: React.ComponentType<{
+    components?: Record<string, React.ComponentType<any>>;
+  }>;
+}>('/src/blog/**/*.mdx', { eager: true });
 
 type Post = {
   _meta: { path: string };

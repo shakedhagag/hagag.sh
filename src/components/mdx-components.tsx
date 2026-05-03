@@ -1,10 +1,16 @@
-import { Link } from "@tanstack/react-router";
+import { ScrollArea } from "@base-ui/react/scroll-area";
 import { CheckIcon, CopyIcon } from "@phosphor-icons/react";
-import * as React from "react";
+import { Link } from "@tanstack/react-router";
+import {
+  type ComponentProps,
+  type ComponentType,
+  useRef,
+  useState,
+} from "react";
 
-type MDXComponents = Record<string, React.ComponentType<any>>;
+type MDXComponents = Record<string, ComponentType<any>>;
 
-function BlogLink({ href = "", ...props }: React.ComponentProps<"a">) {
+function BlogLink({ href = "", ...props }: ComponentProps<"a">) {
   if (href.startsWith("/")) {
     return <Link to={href} {...props} />;
   }
@@ -17,7 +23,7 @@ function BlogHeading({
   children,
   id,
   ...props
-}: React.ComponentProps<"h2"> & {
+}: ComponentProps<"h2"> & {
   as: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }) {
   return (
@@ -46,9 +52,9 @@ function BlogCodeBlock({
   children,
   className = "",
   ...props
-}: React.ComponentProps<"pre">) {
-  const [copied, setCopied] = React.useState(false);
-  const preRef = React.useRef<HTMLPreElement>(null);
+}: ComponentProps<"pre">) {
+  const [copied, setCopied] = useState(false);
+  const preRef = useRef<HTMLPreElement>(null);
 
   async function copyCode() {
     const code = preRef.current?.textContent;
@@ -65,9 +71,19 @@ function BlogCodeBlock({
         {copied ? <CheckIcon weight="bold" /> : <CopyIcon />}
         <span>{copied ? "Copied" : "Copy"}</span>
       </button>
-      <pre ref={preRef} className={className} {...props}>
-        {children}
-      </pre>
+      <ScrollArea.Root className="code-block-scroll">
+        <ScrollArea.Viewport className="code-block-viewport">
+          <pre ref={preRef} className={className} {...props}>
+            {children}
+          </pre>
+        </ScrollArea.Viewport>
+        <ScrollArea.Scrollbar
+          className="code-block-scrollbar"
+          orientation="horizontal"
+        >
+          <ScrollArea.Thumb className="code-block-thumb" />
+        </ScrollArea.Scrollbar>
+      </ScrollArea.Root>
     </figure>
   );
 }
