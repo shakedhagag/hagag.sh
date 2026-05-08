@@ -68,7 +68,11 @@ function BlogCodeBlock({
   return (
     <figure className="not-prose code-block">
       <button className="code-block-copy" type="button" onClick={copyCode}>
-        {copied ? <CheckIcon weight="bold" /> : <CopyIcon />}
+        {copied ? (
+          <CheckIcon weight="bold" />
+        ) : (
+          <CopyIcon className="size-4" weight="bold" />
+        )}
         <span>{copied ? "Copied" : "Copy"}</span>
       </button>
       <ScrollArea.Root className="code-block-scroll">

@@ -142,6 +142,6 @@
   a,
   p {
     @apply font-heading wrap-break-word;
-    @apply text-pretty;
+    @apply text-pretty font-sans;
   }
 }

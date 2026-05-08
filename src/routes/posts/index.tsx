@@ -1,5 +1,15 @@
+import { ArrowRightIcon } from '@phosphor-icons/react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { allPosts } from 'content-collections';
+import { format } from 'date-fns';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
+  ItemTitle,
+} from '@/components/ui/item';
 
 type Post = {
   _meta: { path: string };
@@ -26,7 +36,7 @@ function PostsIndex() {
 
   return (
     <>
-      <blockquote className="mb-8 border-l-2 pl-4 font-semibold text-foreground/65 text-lg italic dark:text-foreground/75">
+      <blockquote className="mb-8 text-pretty border-l-2 pl-4 font-semibold text-foreground/65 text-lg italic dark:text-foreground/75">
         <svg
           className="mb-2 h-4 w-4 text-muted-foreground/60"
           aria-hidden="true"
@@ -38,8 +48,9 @@ function PostsIndex() {
         </svg>
         <p className="font-normal">
           At each stage do whatever seems most interesting and gives you the
-          best options for the future. I call this approach "staying upwind."
-          This is how most people who've done great work seem to have done it.
+          best options for the future.
+          <br /> I call this approach "staying upwind." This is how most people
+          who've done great work seem to have done it.
         </p>
       </blockquote>
       <h2 className="font-bold text-foreground/45 text-sm uppercase leading-loose tracking-wider">
@@ -47,19 +58,29 @@ function PostsIndex() {
       </h2>
       <div className="relative top-5 flex flex-col gap-8">
         {sortedPosts.map(post => (
-          <Link
-            key={post.slug}
-            to="/posts/$slug"
-            params={{ slug: post.slug }}
-            className="block scale-100 rounded-md px-4 py-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
-          >
-            <article>
-              <h2 className="font-semibold text-foreground text-lg">
-                {post.title}
-              </h2>
-              <p className="mt-1 text-muted-foreground">{post.spoiler}</p>
-            </article>
-          </Link>
+          <Item
+            render={
+              <Link
+                key={post.slug}
+                to="/posts/$slug"
+                params={{ slug: post.slug }}
+                className="grid scale-100 grid-cols-[1fr_auto] rounded-md px-4 py-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
+              >
+                <ItemContent>
+                  <ItemTitle>{post.title}</ItemTitle>
+                  <ItemDescription className="text-pretty text-foreground/75 text-sm">
+                    {post.spoiler}
+                  </ItemDescription>
+                  <ItemFooter className="text-foreground/45 text-xs leading-loose tracking-widest">
+                    {format(post.date, 'MMMM dd, yyyy')}
+                  </ItemFooter>
+                </ItemContent>
+                <ItemActions>
+                  <ArrowRightIcon weight="bold" className="size-4" />
+                </ItemActions>
+              </Link>
+            }
+          />
         ))}
       </div>
     </>
