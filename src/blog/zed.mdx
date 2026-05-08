@@ -1,0 +1,416 @@
+---
+title: "Zed is 1.0 and I'm trying it again"
+date: "2026-05-08"
+spoiler: "How a nvim user can make the switch, easily"
+---
+I gave the Zed editor a try about a year ago, not sure which version it was,
+but I do remember having some weird lsp stutter and some weird UI bugs, and that was frustrating.
+
+I then gave Cursor a shot, and it's a great editor, but similar to VSCode, the vim support is really bad.
+you have to work around it, and after getting used to certain nvim keybindings, it was really hard to switch to an editor that doesn't support them.
+Or, more accurately, an editor that you have to fight in order to get the vim experience I was looking for.
+
+But Zed, from the beginning was built with vim support in mind.
+> The goal is a familiar experience that works out of the box without requiring configuration.
+Well it does work out of the box, but I still had to configure it a bit to get the experience I wanted.
+
+In this post, I'll share the workflow I set up to get the best vim experience in Zed, and how it compares to my nvim workflow.
+
+## Why even try again?
+
+The biggest reason is pretty simple: I wanted an editor that feels fast,
+has good AI integration, and does not make me give up on vim.
+
+Neovim is still great, and I'm not going to pretend that Zed suddenly replaces
+years of muscle memory in a day. But the thing that made me want to try Zed again
+is that it feels like it understands the same workflow.
+
+I'm not looking for "vim mode" as a checkbox.
+I'm looking for:
+
+- moving between panes with `ctrl-h/j/k/l`
+- splitting files quickly
+- jumping around with LSP actions
+- having buffer navigation on `H` and `L`
+- moving lines with `alt-j` and `alt-k`
+- not feeling like every keybind is fighting the editor
+
+This is where Cursor and VSCode always felt weird for me.
+They are great editors, but the vim experience is always kind of patched on top.
+Zed feels different here.
+
+## The AI workflow
+
+This part was actually pretty fun.
+
+Instead of trying to manually read the entire Zed keymap docs and map everything
+one by one, I used AI as a translation layer.
+
+The flow was:
+
+1. I took my current neovim keybindings.
+2. I copied Zed's default keybindings.
+3. I gave both to an LLM.
+4. I described the behavior I wanted, not just the key I wanted.
+5. I asked it to map the closest native Zed action.
+
+This is important because in a lot of cases the same action exists in Zed,
+but under a different name, or with a different context.
+
+For example, in neovim I don't really think about "activate pane left",
+I just know that `ctrl-h` takes me left. In Zed, the actual command is
+`workspace::ActivatePaneLeft`.
+
+Same idea with splits, LSP actions, diagnostics, formatting, buffers, search,
+and the AI panel.
+
+So instead of using AI to generate some random config from scratch,
+I used it to map my existing workflow into Zed's language.
+That's a much better use of AI imo.
+
+## The final keymap
+
+This is the config I ended up with:
+
+```jsonc title="keymap.json"
+[
+  {
+    "context": "vim_mode == normal && !menu",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "alt-j": "editor::MoveLineDown",
+      "alt-k": "editor::MoveLineUp",
+      "H": "pane::ActivatePreviousItem",
+      "L": "pane::ActivateNextItem",
+      "^": ["workspace::SendKeystrokes", "0"],
+      "$": ["workspace::SendKeystrokes", "g _"],
+      "s s": "pane::SplitDown",
+      "s r": ["workspace::SendKeystrokes", "c s"],
+      "s v": "pane::SplitRight",
+      "g r r": "editor::FindAllReferences",
+      "space space": "tab_switcher::Toggle",
+      "space b d": ["pane::CloseActiveItem", { "close_pinned": false }],
+      "space b o": ["pane::CloseOtherItems", { "close_pinned": false }],
+      "space b n": "workspace::NewFile",
+      "space =": "vim::ResetPaneSizes",
+      "space a a": "assistant::InlineAssist",
+      "space a c": [
+        "agent::NewThread",
+        { "agent": { "custom": { "name": "opencode" } } }
+      ],
+      "space a f": "agent::OpenAddContextMenu",
+      "space a r": "agent::OpenRulesLibrary",
+      "space e b": "outline_panel::ToggleFocus",
+      "space e d": "project_panel::ToggleFocus",
+      "space f b": "tab_switcher::Toggle",
+      "space f f": "file_finder::Toggle",
+      "space f g": "pane::DeploySearch",
+      "space g d": "git::Diff",
+      "space g g": [
+        "task::Spawn",
+        { "task_name": "LazyGit", "reveal_target": "center" }
+      ],
+      "space g r": "git::Restore",
+      "g r a": "editor::ToggleCodeActions",
+      "space l d": "diagnostics::DeployCurrentFile",
+      "space l f": "editor::Format",
+      "space l h": "editor::Hover",
+      "g r i": "editor::GoToImplementation",
+      "g r n": "editor::Rename",
+      "g D": "editor::GoToDefinition",
+      "g y": "editor::GoToTypeDefinition",
+      "space r r": ["pane::DeploySearch", { "replace_enabled": true }],
+      "space t t": "workspace::NewTerminal",
+      "space x X": "diagnostics::Deploy",
+      "space x x": "diagnostics::DeployCurrentFile"
+    }
+  },
+  {
+    "context": "EmptyPane || SharedScreen",
+    "bindings": {
+      "space f f": "file_finder::Toggle",
+      "space f p": "projects::OpenRecent"
+    }
+  },
+  {
+    "context": "vim_mode == visual && !menu",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "alt-j": "editor::MoveLineDown",
+      "alt-k": "editor::MoveLineUp",
+      "H": "pane::ActivatePreviousItem",
+      "L": "pane::ActivateNextItem",
+      "^": ["workspace::SendKeystrokes", "0"],
+      "$": ["workspace::SendKeystrokes", "g _"],
+      "space l a": "editor::ToggleCodeActions",
+      "space l f": "editor::FormatSelections",
+      "space a v": "agent::AddSelectionToThread"
+    }
+  },
+  {
+    "context": "vim_mode == insert && !menu",
+    "bindings": {
+      "alt-j": "editor::MoveLineDown",
+      "alt-k": "editor::MoveLineUp"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-alt-cmd-^": "vim::ResizePaneLeft",
+      "ctrl-alt-cmd-&": "vim::ResizePaneDown",
+      "ctrl-alt-cmd-*": "vim::ResizePaneUp",
+      "ctrl-alt-cmd-(": "vim::ResizePaneRight",
+      "ctrl-/": "terminal_panel::Toggle"
+    }
+  },
+  {
+    "context": "AcpThread",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight"
+    }
+  },
+  {
+    "context": "AcpThread > Editor",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight"
+    }
+  },
+  {
+    "context": "ProjectPanel && not_editing",
+    "bindings": {
+      "ctrl-v": ["workspace::SendKeystrokes", "cmd-\\ space"],
+      "ctrl-s": ["workspace::SendKeystrokes", "cmd-k down space"]
+    }
+  },
+  {
+    "context": "Picker > Editor",
+    "bindings": {
+      "ctrl-v": ["workspace::SendKeystrokes", "cmd-\\ alt-enter"],
+      "ctrl-s": ["workspace::SendKeystrokes", "cmd-k down alt-enter"]
+    }
+  },
+  {
+    "context": "TabSwitcher",
+    "bindings": {
+      "ctrl-v": ["workspace::SendKeystrokes", "cmd-\\ enter"],
+      "ctrl-s": ["workspace::SendKeystrokes", "cmd-k down enter"]
+    }
+  },
+  {
+    "context": "Editor && showing_completions",
+    "bindings": {
+      "ctrl-y": "editor::ConfirmCompletion"
+    }
+  },
+  {
+    "context": "vim_mode == normal || vim_mode == visual",
+    "bindings": {
+      "s": "vim::PushSneak",
+      "shift-s": "vim::PushSneakBackward"
+    }
+  },
+  {
+    "context": "vim_operator == a || vim_operator == i || vim_operator == cs",
+    "bindings": {
+      "q": "vim::MiniQuotes",
+      "b": "vim::MiniBrackets"
+    }
+  }
+]
+```
+
+## LazyGit as a task
+
+One small thing that makes this setup feel much closer to my terminal workflow
+is opening LazyGit as a Zed task.
+
+In the keymap, I have this:
+
+```jsonc
+"space g g": [
+  "task::Spawn",
+  { "task_name": "LazyGit", "reveal_target": "center" }
+]
+```
+
+But for that to work, you also need to define the task itself.
+This is based on the LazyGit example from Zed's
+[hidden gems post](https://zed.dev/blog/hidden-gems-part-1#lazygit-as-a-task):
+
+```jsonc title="tasks.json"
+[
+  {
+    "label": "LazyGit",
+    "command": "lazygit",
+    "shell": {
+      "program": "sh"
+    },
+    "hide": "on_success",
+    "reveal_target": "center",
+    "show_summary": false,
+    "show_command": false,
+    "allow_concurrent_runs": true,
+    "use_new_terminal": true
+  }
+]
+```
+
+Now `space g g` opens LazyGit in the center of the editor.
+It's a small thing, but it matters a lot if you're used to doing git from the terminal.
+
+## The important parts
+
+The main thing I cared about was pane navigation.
+If `ctrl-h/j/k/l` does not work everywhere, the whole thing feels broken for me.
+
+That's why you can see the same bindings repeated in `Workspace`, `AcpThread`,
+and `AcpThread > Editor`. It looks a bit duplicated, but it makes the editor
+feel consistent. I don't want to think about whether I'm focused inside a file,
+inside the AI thread, or inside a panel. The movement should just work.
+
+I also mapped `H` and `L` to previous and next tab, which is something I use all
+the time in neovim. This is one of those small things that makes a huge difference.
+
+Same for `alt-j` and `alt-k` for moving lines. I use this in normal, visual,
+and insert mode. I know some people don't like moving lines in insert mode,
+but I do it enough that it's worth keeping.
+
+## Splits
+
+Splits are mapped under `s`, which is what I was used to:
+
+```jsonc
+"s s": "pane::SplitDown",
+"s v": "pane::SplitRight"
+```
+
+I also use `s r` for changing surrounding characters:
+
+```jsonc
+"s r": ["workspace::SendKeystrokes", "c s"]
+```
+
+This gives me the same feeling of quickly creating a layout without touching the mouse.
+The `s r` one is not really a split command, but mentally it still lives under
+the same small `s` group for me.
+
+## Leader key
+
+I use `space` as my leader key.
+Nothing special here, just the stuff I use often:
+
+- `space f f` for file finder
+- `space f g` for search
+- `space r r` for search and replace
+- `space t t` for terminal
+- `space l f` for format
+- `space l h` for hover (honestly I'm using `shift-k` more often)
+- `space x x` for current file diagnostics
+- `space x X` for all diagnostics
+
+This is pretty close to my neovim setup, and that's the point.
+I don't want a totally new editor workflow. I want Zed to disappear and let me work.
+
+## Git and LazyGit
+
+Zed has some built-in git actions, and they are nice.
+But I still like LazyGit.
+
+Opening LazyGit as a task from inside Zed is exactly what I want.
+I'm not trying to replace every terminal tool with an editor UI.
+Some tools are already great.
+
+## AI inside Zed
+
+This is another big reason I wanted to try Zed again.
+
+I use OpenCode a lot, and Zed's agent integration makes it pretty easy to keep
+that flow inside the editor.
+
+```jsonc
+"space a a": "assistant::InlineAssist",
+"space a c": [
+  "agent::NewThread",
+  { "agent": { "custom": { "name": "opencode" } } }
+],
+"space a f": "agent::OpenAddContextMenu",
+"space a r": "agent::OpenRulesLibrary",
+"space a v": "agent::AddSelectionToThread"
+```
+
+The nice thing is that this doesn't feel like a separate app glued to the side.
+I can select code, add it to the thread, ask something, and keep moving around
+with the same pane navigation.
+
+This is one of the areas where Zed feels more modern than neovim out of the box.
+Obviously you can build anything in neovim, but sometimes I don't want to build
+the editor. I want to use it.
+
+## What still feels better in neovim?
+
+Neovim still wins in a few places.
+
+The terminal workflow is still unmatched.
+Being inside tmux, jumping between shells, running commands, opening files,
+and having the whole thing be text-first is hard to beat.
+
+Also, neovim is infinitely configurable, for better and worse.
+If you want some weird behavior, you can probably make it happen.
+In Zed, you are more constrained by the actions the editor exposes.
+
+But that's also kind of the point.
+I don't want to spend 2 hours debugging a lua plugin because I wanted a picker
+to behave slightly differently.
+
+## What feels better in Zed?
+
+The UI is fast.
+The LSP experience feels good now.
+The defaults are much better than I remembered.
+And most importantly for me, vim mode feels like a real part of the editor.
+
+Not perfect, but real.
+
+The other thing is that Zed feels like a good middle ground between neovim and Cursor.
+You get a modern GUI editor, good AI features, nice project UI, and still keep
+most of the keyboard driven workflow.
+
+That's a pretty good place to be.
+
+## Final thoughts
+
+I'm not deleting neovim.
+That would be dramatic and also probably a lie.
+
+But Zed 1.0 is the first version that made me think:
+
+> yeah, I can actually use this for real work.
+
+The key for me was not trying to learn Zed from zero.
+I took the workflow I already had, used AI to translate it into Zed actions,
+and then tweaked the annoying parts until it felt right.
+
+If you're a neovim user and you tried Zed before but bounced off it,
+I think it's worth another shot.
+
+Just don't start from the defaults and hope it magically feels like home.
+Take your actual workflow, map it properly, and then see how it feels.
+
+For me, it's finally good enough to try again.
