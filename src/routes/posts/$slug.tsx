@@ -3,6 +3,10 @@ import { allPosts } from 'content-collections';
 import { format } from 'date-fns';
 import { BottomBlurGradientMask } from '@/components/bottom-blur-gradient-mask';
 import { mdxComponents } from '@/components/mdx-components';
+import {
+  getPostDateTransitionStyle,
+  getPostTitleTransitionStyle,
+} from '@/lib/utils';
 
 const postModules = import.meta.glob<{
   default: React.ComponentType<{
@@ -76,10 +80,14 @@ function BlogPostOrGroup() {
               key={post.slug}
               to="/posts/$slug"
               params={{ slug: post.slug }}
+              viewTransition
               className="block scale-100 rounded-md px-4 py-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
             >
               <article>
-                <h2 className="font-semibold text-foreground text-lg">
+                <h2
+                  className="font-semibold text-foreground text-lg [view-transition-name:var(--post-title-transition)]"
+                  style={getPostTitleTransitionStyle(post.slug)}
+                >
                   {post.title}
                 </h2>
                 <p className="mt-1 text-muted-foreground">{post.spoiler}</p>
@@ -100,10 +108,16 @@ function BlogPostOrGroup() {
     <>
       <article>
         <div className="flex flex-col">
-          <h1 className="font-semibold text-3xl text-card-foreground">
+          <h1
+            className="font-semibold text-3xl text-card-foreground [view-transition-name:var(--post-title-transition)]"
+            style={getPostTitleTransitionStyle(post.slug)}
+          >
             {post.title}
           </h1>
-          <p className="mt-2 mb-4 text-left text-muted-foreground text-sm">
+          <p
+            className="mt-2 mb-4 text-left text-muted-foreground text-sm [view-transition-name:var(--post-date-transition)]"
+            style={getPostDateTransitionStyle(post.slug)}
+          >
             {formattedDate}
           </p>
         </div>

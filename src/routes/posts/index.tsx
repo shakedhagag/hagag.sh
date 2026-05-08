@@ -10,6 +10,10 @@ import {
   ItemFooter,
   ItemTitle,
 } from '@/components/ui/item';
+import {
+  getPostDateTransitionStyle,
+  getPostTitleTransitionStyle,
+} from '@/lib/utils';
 
 type Post = {
   _meta: { path: string };
@@ -59,19 +63,28 @@ function PostsIndex() {
       <div className="relative top-5 flex flex-col gap-8">
         {sortedPosts.map(post => (
           <Item
+            key={post.slug}
             render={
               <Link
-                key={post.slug}
                 to="/posts/$slug"
+                viewTransition
                 params={{ slug: post.slug }}
                 className="grid scale-100 grid-cols-[1fr_auto] rounded-md px-4 py-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
               >
                 <ItemContent>
-                  <ItemTitle>{post.title}</ItemTitle>
+                  <ItemTitle
+                    className="[view-transition-name:var(--post-title-transition)]"
+                    style={getPostTitleTransitionStyle(post.slug)}
+                  >
+                    {post.title}
+                  </ItemTitle>
                   <ItemDescription className="text-pretty text-foreground/75 text-sm">
                     {post.spoiler}
                   </ItemDescription>
-                  <ItemFooter className="text-foreground/45 text-xs leading-loose tracking-widest">
+                  <ItemFooter
+                    className="text-foreground/45 text-xs leading-loose tracking-widest [view-transition-name:var(--post-date-transition)]"
+                    style={getPostDateTransitionStyle(post.slug)}
+                  >
                     {format(post.date, 'MMMM dd, yyyy')}
                   </ItemFooter>
                 </ItemContent>
