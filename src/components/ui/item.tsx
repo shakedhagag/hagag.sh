@@ -1,10 +1,9 @@
-import type * as React from 'react';
 import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
-
-import { cn } from '@/lib/utils';
+import type * as React from 'react';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
 function ItemGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
@@ -12,7 +11,7 @@ function ItemGroup({ className, ...props }: React.ComponentProps<'div'>) {
       role="list"
       data-slot="item-group"
       className={cn(
-        'shagag:group/item-group shagag:flex shagag:w-full shagag:flex-col shagag:gap-4 shagag:has-data-[size=sm]:gap-2.5 shagag:has-data-[size=xs]:gap-2',
+        'group/item-group flex w-full flex-col gap-4 has-data-[size=sm]:gap-2.5 has-data-[size=xs]:gap-2',
         className
       )}
       {...props}
@@ -28,25 +27,25 @@ function ItemSeparator({
     <Separator
       data-slot="item-separator"
       orientation="horizontal"
-      className={cn('shagag:my-2', className)}
+      className={cn('my-2', className)}
       {...props}
     />
   );
 }
 
 const itemVariants = cva(
-  'shagag:group/item shagag:flex shagag:w-full shagag:flex-wrap shagag:items-center shagag:rounded-2xl shagag:border shagag:text-sm shagag:outline-none shagag:transition-colors shagag:duration-100 shagag:focus-visible:border-ring shagag:focus-visible:ring-[3px] shagag:focus-visible:ring-ring/50 shagag:[a]:transition-colors shagag:[a]:hover:bg-muted',
+  'group/item flex w-full flex-wrap items-center rounded-2xl border text-sm outline-none transition-colors duration-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted',
   {
     variants: {
       variant: {
-        default: 'shagag:border-transparent',
-        outline: 'shagag:border-border',
-        muted: 'shagag:border-transparent shagag:bg-muted/50',
+        default: 'border-transparent',
+        outline: 'border-border',
+        muted: 'border-transparent bg-muted/50',
       },
       size: {
-        default: 'shagag:gap-3.5 shagag:px-4 shagag:py-3.5',
-        sm: 'shagag:gap-3.5 shagag:px-3.5 shagag:py-3',
-        xs: 'shagag:gap-2.5 shagag:in-data-[slot=dropdown-menu-content]:p-0 shagag:px-3 shagag:py-2.5',
+        default: 'gap-3.5 px-4 py-3.5',
+        sm: 'gap-3.5 px-3.5 py-3',
+        xs: 'gap-2.5 in-data-[slot=dropdown-menu-content]:p-0 px-3 py-2.5',
       },
     },
     defaultVariants: {
@@ -81,14 +80,14 @@ function Item({
 }
 
 const itemMediaVariants = cva(
-  'shagag:flex shagag:shrink-0 shagag:items-center shagag:justify-center shagag:gap-2 shagag:group-has-data-[slot=item-description]/item:translate-y-0.5 shagag:group-has-data-[slot=item-description]/item:self-start shagag:[&_svg]:pointer-events-none',
+  'flex shrink-0 items-center justify-center gap-2 group-has-data-[slot=item-description]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none',
   {
     variants: {
       variant: {
-        default: 'shagag:bg-transparent',
-        icon: 'shagag:[&_svg:not([class*=size-])]:size-4',
+        default: 'bg-transparent',
+        icon: '[&_svg:not([class*=size-])]:size-4',
         image:
-          'shagag:size-10 shagag:overflow-hidden shagag:rounded-xl shagag:group-data-[size=sm]/item:size-8 shagag:group-data-[size=xs]/item:size-6 shagag:group-data-[size=xs]/item:rounded-lg shagag:[&_img]:size-full shagag:[&_img]:object-cover',
+          'size-10 overflow-hidden rounded-xl group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 group-data-[size=xs]/item:rounded-lg [&_img]:size-full [&_img]:object-cover',
       },
     },
     defaultVariants: {
@@ -117,7 +116,7 @@ function ItemContent({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="item-content"
       className={cn(
-        'shagag:flex shagag:flex-1 shagag:flex-col shagag:gap-1 shagag:group-data-[size=xs]/item:gap-0.5 shagag:[&+[data-slot=item-content]]:flex-none',
+        'flex flex-1 flex-col gap-1 group-data-[size=xs]/item:gap-0.5 [&+[data-slot=item-content]]:flex-none',
         className
       )}
       {...props}
@@ -130,7 +129,7 @@ function ItemTitle({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="item-title"
       className={cn(
-        'shagag:line-clamp-1 shagag:flex shagag:w-fit shagag:items-center shagag:gap-2 shagag:font-medium shagag:text-sm shagag:leading-snug shagag:underline-offset-4',
+        'line-clamp-1 flex w-fit items-center gap-2 font-medium text-sm leading-snug underline-offset-4',
         className
       )}
       {...props}
@@ -143,7 +142,7 @@ function ItemDescription({ className, ...props }: React.ComponentProps<'p'>) {
     <p
       data-slot="item-description"
       className={cn(
-        'shagag:line-clamp-2 shagag:text-start shagag:font-normal shagag:text-muted-foreground shagag:text-sm shagag:[&>a:hover]:text-primary shagag:[&>a]:underline shagag:[&>a]:underline-offset-4',
+        'line-clamp-2 text-start font-normal text-muted-foreground text-sm [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4',
         className
       )}
       {...props}
@@ -155,7 +154,7 @@ function ItemActions({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="item-actions"
-      className={cn('shagag:flex shagag:items-center shagag:gap-2', className)}
+      className={cn('flex items-center gap-2', className)}
       {...props}
     />
   );
@@ -166,7 +165,7 @@ function ItemHeader({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="item-header"
       className={cn(
-        'shagag:flex shagag:basis-full shagag:items-center shagag:justify-between shagag:gap-2',
+        'flex basis-full items-center justify-between gap-2',
         className
       )}
       {...props}
@@ -179,7 +178,7 @@ function ItemFooter({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="item-footer"
       className={cn(
-        'shagag:flex shagag:basis-full shagag:items-center shagag:justify-between shagag:gap-2',
+        'flex basis-full items-center justify-between gap-2',
         className
       )}
       {...props}
@@ -189,13 +188,13 @@ function ItemFooter({ className, ...props }: React.ComponentProps<'div'>) {
 
 export {
   Item,
-  ItemMedia,
-  ItemContent,
   ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
   ItemGroup,
+  ItemHeader,
+  ItemMedia,
   ItemSeparator,
   ItemTitle,
-  ItemDescription,
-  ItemHeader,
-  ItemFooter,
 };

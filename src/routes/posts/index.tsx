@@ -10,6 +10,7 @@ import {
   ItemFooter,
   ItemTitle,
 } from '@/components/ui/item';
+import { Separator } from '@/components/ui/separator';
 import {
   getPostDateTransitionStyle,
   getPostTitleTransitionStyle,
@@ -32,11 +33,30 @@ export const Route = createFileRoute('/posts/')({
   component: PostsIndex,
 });
 
+function groupPostsByYear(posts: Array<Post>) {
+  return posts.reduce<Array<{ year: string; posts: Array<Post> }>>(
+    (groups, post) => {
+      const year = format(post.date, 'yyyy');
+      const currentGroup = groups.at(-1);
+
+      if (currentGroup?.year === year) {
+        currentGroup.posts.push(post);
+        return groups;
+      }
+
+      groups.push({ year, posts: [post] });
+      return groups;
+    },
+    []
+  );
+}
+
 function PostsIndex() {
   // Posts are sorted by date
   const sortedPosts = (allPosts as Array<Post>)
     .filter(post => !post.group)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const groupedPosts = groupPostsByYear(sortedPosts);
 
   return (
     <>
@@ -60,40 +80,52 @@ function PostsIndex() {
       <h2 className="font-bold text-foreground/45 text-sm uppercase leading-loose tracking-wider">
         Recent Posts
       </h2>
-      <div className="relative top-5 flex flex-col gap-8">
-        {sortedPosts.map(post => (
-          <Item
-            key={post.slug}
-            render={
-              <Link
-                to="/posts/$slug"
-                viewTransition
-                params={{ slug: post.slug }}
-                className="grid scale-100 grid-cols-[1fr_auto] rounded-md px-4 py-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
-              >
-                <ItemContent>
-                  <ItemTitle
-                    className="[view-transition-name:var(--post-title-transition)]"
-                    style={getPostTitleTransitionStyle(post.slug)}
-                  >
-                    {post.title}
-                  </ItemTitle>
-                  <ItemDescription className="text-pretty text-foreground/75 text-sm">
-                    {post.spoiler}
-                  </ItemDescription>
-                  <ItemFooter
-                    className="text-foreground/45 text-xs leading-loose tracking-widest [view-transition-name:var(--post-date-transition)]"
-                    style={getPostDateTransitionStyle(post.slug)}
-                  >
-                    {format(post.date, 'MMMM dd, yyyy')}
-                  </ItemFooter>
-                </ItemContent>
-                <ItemActions>
-                  <ArrowRightIcon weight="bold" className="size-4" />
-                </ItemActions>
-              </Link>
-            }
-          />
+      <div className="relative top-5 flex flex-col gap-10">
+        {groupedPosts.map((group, index) => (
+          <section key={group.year} className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <h3 className="shrink-0 font-bold text-foreground/45 text-xs uppercase leading-loose tracking-wider">
+                {group.year}
+              </h3>
+              {index > 0 ? <Separator className="flex-1" /> : null}
+            </div>
+            <div className="flex flex-col gap-8">
+              {group.posts.map(post => (
+                <Item
+                  key={post.slug}
+                  render={
+                    <Link
+                      to="/posts/$slug"
+                      viewTransition
+                      params={{ slug: post.slug }}
+                      className="grid scale-100 grid-cols-[1fr_auto] rounded-md px-4 py-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
+                    >
+                      <ItemContent>
+                        <ItemTitle
+                          className="[view-transition-name:var(--post-title-transition)]"
+                          style={getPostTitleTransitionStyle(post.slug)}
+                        >
+                          {post.title}
+                        </ItemTitle>
+                        <ItemDescription className="text-pretty text-foreground/75 text-sm">
+                          {post.spoiler}
+                        </ItemDescription>
+                        <ItemFooter
+                          className="text-foreground/45 text-xs leading-loose tracking-widest [view-transition-name:var(--post-date-transition)]"
+                          style={getPostDateTransitionStyle(post.slug)}
+                        >
+                          {format(post.date, 'MMMM dd, yyyy')}
+                        </ItemFooter>
+                      </ItemContent>
+                      <ItemActions>
+                        <ArrowRightIcon weight="bold" className="size-4" />
+                      </ItemActions>
+                    </Link>
+                  }
+                />
+              ))}
+            </div>
+          </section>
         ))}
       </div>
     </>
