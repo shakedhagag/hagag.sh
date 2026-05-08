@@ -1,8 +1,17 @@
+import { ArrowRightIcon } from '@phosphor-icons/react';
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { allPosts } from 'content-collections';
 import { format } from 'date-fns';
 import { BottomBlurGradientMask } from '@/components/bottom-blur-gradient-mask';
 import { mdxComponents } from '@/components/mdx-components';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
+  ItemTitle,
+} from '@/components/ui/item';
 import {
   getPostDateTransitionStyle,
   getPostTitleTransitionStyle,
@@ -76,23 +85,38 @@ function BlogPostOrGroup() {
         </h2>
         <div className="relative top-5 flex flex-col gap-8">
           {posts.map(post => (
-            <Link
+            <Item
               key={post.slug}
-              to="/posts/$slug"
-              params={{ slug: post.slug }}
-              viewTransition
-              className="block scale-100 rounded-md px-4 py-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
-            >
-              <article>
-                <h2
-                  className="font-semibold text-foreground text-lg [view-transition-name:var(--post-title-transition)]"
-                  style={getPostTitleTransitionStyle(post.slug)}
+              render={
+                <Link
+                  to="/posts/$slug"
+                  params={{ slug: post.slug }}
+                  viewTransition
+                  className="grid scale-100 grid-cols-[1fr_auto] rounded-md px-4 py-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
                 >
-                  {post.title}
-                </h2>
-                <p className="mt-1 text-muted-foreground">{post.spoiler}</p>
-              </article>
-            </Link>
+                  <ItemContent>
+                    <ItemTitle
+                      className="[view-transition-name:var(--post-title-transition)]"
+                      style={getPostTitleTransitionStyle(post.slug)}
+                    >
+                      {post.title}
+                    </ItemTitle>
+                    <ItemDescription className="text-pretty text-foreground/75 text-sm">
+                      {post.spoiler}
+                    </ItemDescription>
+                    <ItemFooter
+                      className="text-foreground/45 text-xs leading-loose tracking-widest [view-transition-name:var(--post-date-transition)]"
+                      style={getPostDateTransitionStyle(post.slug)}
+                    >
+                      {format(post.date, 'MMMM dd, yyyy')}
+                    </ItemFooter>
+                  </ItemContent>
+                  <ItemActions>
+                    <ArrowRightIcon weight="bold" className="size-4" />
+                  </ItemActions>
+                </Link>
+              }
+            />
           ))}
         </div>
       </>
