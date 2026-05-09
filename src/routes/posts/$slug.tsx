@@ -80,7 +80,7 @@ function BlogPostOrGroup() {
     const { group, posts } = data;
     return (
       <>
-        <h2 className="font-bold text-card-foreground text-sm uppercase leading-loose tracking-wider">
+        <h2 className="font-semibold text-card-foreground text-sm uppercase leading-loose tracking-wider">
           {group.charAt(0).toUpperCase() + group.slice(1).replace(/-/g, ' ')}
         </h2>
         <div className="relative top-5 flex flex-col gap-8">
@@ -92,7 +92,7 @@ function BlogPostOrGroup() {
                   to="/posts/$slug"
                   params={{ slug: post.slug }}
                   viewTransition
-                  className="grid scale-100 grid-cols-[1fr_auto] rounded-md px-4 py-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
+                  className="grid scale-100 grid-cols-[1fr_auto] rounded-md p-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
                 >
                   <ItemContent>
                     <ItemTitle

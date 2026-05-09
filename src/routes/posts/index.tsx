@@ -62,7 +62,7 @@ function PostsIndex() {
     <>
       <blockquote className="mb-8 text-pretty border-l-2 pl-4 font-semibold text-foreground/65 text-lg italic dark:text-foreground/75">
         <svg
-          className="mb-2 h-4 w-4 text-muted-foreground/60"
+          className="mb-2 size-4 text-muted-foreground/60"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
@@ -77,7 +77,7 @@ function PostsIndex() {
           who've done great work seem to have done it.
         </p>
       </blockquote>
-      <h2 className="font-bold text-foreground/45 text-sm uppercase leading-loose tracking-wider">
+      <h2 className="font-semibold text-foreground/45 text-sm uppercase leading-loose tracking-wider">
         Recent Posts
       </h2>
       <div className="relative top-5 flex flex-col gap-10">
