@@ -102,7 +102,7 @@ function PostsIndex() {
                     >
                       <ItemContent>
                         <ItemTitle
-                          className="[view-transition-name:var(--post-title-transition)]"
+                          className="text-lg [view-transition-name:var(--post-title-transition)]"
                           style={getPostTitleTransitionStyle(post.slug)}
                         >
                           {post.title}
