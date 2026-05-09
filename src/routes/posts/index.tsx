@@ -84,7 +84,7 @@ function PostsIndex() {
         {groupedPosts.map((group, index) => (
           <section key={group.year} className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <h3 className="shrink-0 font-bold text-foreground/45 text-xs uppercase leading-loose tracking-wider">
+              <h3 className="shrink-0 font-semibold text-foreground/45 text-xs uppercase leading-loose tracking-wider">
                 {group.year}
               </h3>
               {index > 0 ? <Separator className="flex-1" /> : null}
@@ -98,7 +98,7 @@ function PostsIndex() {
                       to="/posts/$slug"
                       viewTransition
                       params={{ slug: post.slug }}
-                      className="grid scale-100 grid-cols-[1fr_auto] rounded-md px-4 py-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
+                      className="grid scale-100 grid-cols-[1fr_auto] rounded-md p-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
                     >
                       <ItemContent>
                         <ItemTitle
