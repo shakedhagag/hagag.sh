@@ -30,7 +30,7 @@ export function Header() {
           <img
             src="https://avatars.githubusercontent.com/u/76105109?v=4"
             alt="shagag"
-            className="relative -top-1 mx-2 inline h-8 w-8 rounded-full"
+            className="relative -top-1 mx-2 inline size-8 rounded-full"
             width="32"
             height="32"
           />
