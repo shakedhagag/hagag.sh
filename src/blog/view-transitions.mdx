@@ -1,0 +1,112 @@
+---
+title: "View transitions are pretty neat"
+date: "2026-05-29"
+spoiler: "Making a blog title move between pages with almost no code"
+---
+
+I added a small view transition to the blog list, where the post title and date
+move into their place on the blog post page.
+
+Nothing crazy, but it makes the navigation feel much nicer.
+
+This is done through TanStack Router's `Link` component, using the
+`viewTransition` prop.
+
+The idea is pretty simple: give the element on the old page and the element on
+the new page the same `view-transition-name`.
+
+So in the posts list, the title has:
+
+```tsx
+<ItemTitle
+  className="[view-transition-name:var(--post-title-transition)]"
+  style={getPostTitleTransitionStyle(post.slug)}
+>
+  {post.title}
+</ItemTitle>
+```
+
+And on the post page, the `h1` gets the same transition name:
+
+```tsx
+<h1
+  className="font-semibold text-3xl text-card-foreground [view-transition-name:var(--post-title-transition)]"
+  style={getPostTitleTransitionStyle(post.slug)}
+>
+  {post.title}
+</h1>
+```
+
+Same thing for the date:
+
+```tsx
+<ItemFooter
+  className="text-foreground/45 text-xs leading-loose tracking-widest [view-transition-name:var(--post-date-transition)]"
+  style={getPostDateTransitionStyle(post.slug)}
+>
+  {format(post.date, 'MMMM dd, yyyy')}
+</ItemFooter>
+```
+
+And then on the post page:
+
+```tsx
+<p
+  className="mt-2 mb-4 text-left text-muted-foreground text-sm [view-transition-name:var(--post-date-transition)]"
+  style={getPostDateTransitionStyle(post.slug)}
+>
+  {formattedDate}
+</p>
+```
+
+The helper just creates a unique name per post:
+
+```ts
+export function getPostTitleTransitionName(slug: string) {
+  return `post-title-${slug.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+}
+
+export function getPostTitleTransitionStyle(slug: string) {
+  return {
+    '--post-title-transition': getPostTitleTransitionName(slug),
+  };
+}
+```
+
+I used a CSS variable because the Tailwind class needs to stay static.
+This works:
+
+```tsx
+className="[view-transition-name:var(--post-title-transition)]"
+```
+
+This is less reliable:
+
+```tsx
+className={`[view-transition-name:post-title-${post.slug}]`}
+```
+
+Because Tailwind needs to detect classes at build time, and dynamic class names
+can disappear from the generated CSS.
+
+The last piece is enabling the transition on the TanStack Router link:
+
+```tsx
+<Link viewTransition to="/posts/$slug" params={{ slug: post.slug }}>
+  ...
+</Link>
+```
+
+One thing that tripped me up: I had a `main-content` view transition on the whole
+route outlet before.
+
+```tsx
+<div className="[view-transition-name:main-content]">
+  <Outlet />
+</div>
+```
+
+That made the whole page fade, which basically swallowed the title transition.
+After removing it, the title and date started moving properly.
+
+Pretty small change, pretty nice result.
