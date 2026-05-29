@@ -6,14 +6,14 @@ spoiler: "to see all the 'use client' and 'use server' directives in a tree view
 
 ## React's Most Dangerous Feature
 
-<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+<div className="relative h-0 overflow-hidden pb-[56.25%]">
   <iframe
-    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+    className="absolute inset-0 h-full w-full"
     src="https://www.youtube.com/embed/yUm-ET8w_28"
     title="React's Most Dangerous Feature"
-    frameborder="0"
+    frameBorder="0"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowfullscreen>
+    allowFullScreen>
   </iframe>
 </div>
 <br />
@@ -29,14 +29,14 @@ server' functions I've been exporting. Oops.
 So I decided to create a VS Code extension that would help me visualize all the 'use server' directives in a tree view, and mark unused exported server actions so it would be easier to spot this security issue.
 
 <br/>
-<div class="flex justify-center gap-4 items-center">
+<div className="flex justify-center gap-4 items-center">
 ![logo](https://raw.githubusercontent.com/shakedhagag/directive-tree/main/resources/icon.png)
-<span>
+<div>
 ## <a href='https://marketplace.visualstudio.com/items?itemName=shagag.directive-tree'>Directive Tree</a>
 
 quick and easy way to visualize and navigate 'use client' and 'use server' directives in your codebase, and spot unused exported server actions.
 
-</span>
+</div>
 </div>
 
 ## Why Use It?
