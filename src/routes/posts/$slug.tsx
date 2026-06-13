@@ -130,7 +130,7 @@ function BlogPostOrGroup() {
 
   return (
     <>
-      <article>
+      <article className="mb-10">
         <div className="flex flex-col">
           <h1
             className="font-semibold text-3xl text-card-foreground [view-transition-name:var(--post-title-transition)]"

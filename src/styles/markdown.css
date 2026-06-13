@@ -210,10 +210,26 @@
 .markdown .code-block pre {
   overflow: visible;
   clip-path: none;
+
+  font-family: var(--font-mono);
 }
 
 .markdown .code-block pre > code[data-theme*=" "] {
   overflow: visible;
   clip-path: none;
   padding: 1rem 5rem 1rem 1rem !important;
+  font-family: var(--font-mono);
+}
+
+.prose-blog :where(code):not(:where(pre code, .not-prose, .not-prose *))::before,
+.prose-blog :where(code):not(:where(pre code, .not-prose, .not-prose *))::after {
+  content: none;
+}
+
+.prose-blog :where(code):not(:where(pre code, .not-prose, .not-prose *)) {
+  border-radius: 0.375rem;
+  background: color-mix(in oklab, var(--color-foreground) 8%, transparent);
+  padding: 0.125rem 0.375rem;
+  font-size: 0.9em;
+  font-family: var(--font-mono);
 }
