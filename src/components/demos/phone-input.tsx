@@ -1,6 +1,6 @@
 'use client';
 
-import { EarthIcon } from 'lucide-react';
+import { GlobeHemisphereWestIcon } from '@phosphor-icons/react';
 import type { ComponentProps } from 'react';
 import { createContext, useContext, useMemo, useState } from 'react';
 // biome-ignore lint/performance/noNamespaceImport: needed
@@ -237,7 +237,7 @@ const FlagComponent = ({ country, countryName }: BasePhoneInput.FlagProps) => {
       {Flag ? (
         <Flag title={countryName} />
       ) : (
-        <EarthIcon className="size-4 opacity-60" />
+        <GlobeHemisphereWestIcon className="size-4 opacity-60" />
       )}
     </span>
   );
