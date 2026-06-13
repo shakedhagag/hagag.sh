@@ -1,0 +1,308 @@
+---
+title: "useSyncExternalStore - a different perspective"
+date: "2026-06-13"
+spoiler: "The widely unknown hook that most React developers have never used — bent into something it was never meant for."
+---
+import { PhoneInput } from '@/components/demos/phone-input'
+
+
+Since the rise of shadcn/ui, the frontend ecosystem has been flooded with React component registries.
+
+This has led to some genuinely useful component libraries, making frontend developers’ lives much easier.
+You can now “install” a component into your project, own its code, and customize or maintain it however you want.
+
+I like this idea a lot.
+At Frame Security, we use the shadcn/ui approach for our internal design system, Amber.
+Most of our components are built on top of shadcn/ui, which itself is built on top of Base UI after we migrated from Radix.
+
+This has allowed us to move quickly while building our platform, while still owning the code and deciding the look and feel of our components.
+
+I say that in contrast to the common feeling I get when browsing the web these days: so many websites look exactly the same.
+
+But that's not the point of this blog post. I wanted to give an example on the issue with registries, and how to maintain a critical mindset when using them.
+
+### We needed a phone input component, fast.
+
+We released a feature that required users to enter phone numbers.
+
+We were moving fast, so the first iteration was just a simple input field:
+
+```tsx
+<Controller
+  name="phoneNumber"
+  control={form.control}
+  render={({ field, fieldState }) => (
+    <Field data-invalid={fieldState.invalid}>
+      <FieldLabel htmlFor="add-contact-form-phone-number">
+        Phone number
+      </FieldLabel>
+      <Input
+        {...field}
+        id="add-contact-form-phone-number"
+        aria-invalid={fieldState.invalid}
+        autoComplete="tel"
+      />
+      <FieldError errors={[fieldState.error]} />
+    </Field>
+  )}
+/>
+```
+
+This form field is pretty straightforward: just a regular input field. The validation, making sure the input is actually a phone number, is done with `zod`, of course, and also on the backend.
+
+But then we encountered some regional phone numbers issues that affected the usage of this feature, so we needed something better, and fast.
+
+We needed better validation, and we needed to dynamically provide the allowed country codes based on what our backend supports.
+
+So we went to look for a phone input component, and we found [react-phone-number-input](https://gitlab.com/catamphetamine/react-phone-number-input), which is the most popular phone input component in the React ecosystem, at least by downloads. It looked pretty good, so we decided to use it.
+
+After that, I went to search for a shadcn/ui-style phone input component, and frankly, I found one pretty fast. To my surprise, it was built on top of `react-phone-number-input`, which was exactly what we needed.
+
+The component that I found can be found [here](https://shadcnstudio.com/docs/components/phone-input?base=base).
+
+
+Right off the bat, you can see something is off just by using it in the shadcnstudio.com website -
+- Click on the country code selector. It is a combobox holding a list of all country codes, with their respective flags.
+- Notice anything weird? The waiting time is noticeably long from the moment you click until the list appears.
+
+This usually suggests that you have an INP issue!
+
+> INP is a metric that assesses a page's overall responsiveness to user interactions by observing the latency of all click, tap, and keyboard interactions that occur throughout the lifespan of a user's visit to a page. The final INP value is the longest interaction observed, ignoring outliers.
+
+### Demo (the component from the registry as is):
+
+<div class="not-prose overflow-hidden rounded-lg max-w-sm mt-5">
+<PhoneInput placeholder='Enter contact number' />
+</div>
+
+When you use it here, you might think I changed something, because it works pretty well on a small blog post page.
+
+But the page around the component matters. INP measures the full interaction delay, not only the component itself. When I used this component on Frame Security's platform, in the context of a much more complex form page with multiple inputs and multiple dialogs with nested forms, the INP was really bad, and the component felt laggy.
+
+### The issue
+
+Looking at the code of the component, the first thing that caught my eye is the eager import of the `react-phone-number-input/flags` module, this module contains all the flags (about 250) svg icons.
+
+```tsx
+import * as BasePhoneInput from 'react-phone-number-input';
+import flags from 'react-phone-number-input/flags';
+
+const FlagComponent = ({ country, countryName }: BasePhoneInput.FlagProps) => {
+  const Flag = flags[country];
+
+  return (
+    <span className="flex size-4 items-center justify-center [&_svg:not([class*='size-'])]:size-full! [&_svg:not([class*='size-'])]:rounded-[5px]">
+      {Flag ? (
+        <Flag title={countryName} />
+      ) : (
+        <EarthIcon className="size-4 opacity-60" />
+      )}
+    </span>
+  );
+};
+```
+
+So if you want to get a really quick performance boost with basically zero effort, lazy load the flag module is the way to go,
+keeping ~250 SVGs out of the initial chunk, is quite an improvement. But that's a bundler-time transformation, it doesn't care whether React is involved.
+
+#### But will it fix the INP issue?
+
+lazy-loading the flags is a bundle win, not the INP fix. The eager import was just the first thing that caught my eye when I opened the code, but it's irrelevant for the inp issue.
+Why? because React still need to load 250 divs of ComboboxItem to the dom when you open the list.
+So how did I fix this? More on this later.
+
+
+### Dynamic imports are async
+We need to think of a way to let React know that the flags are loaded, meaning we need to trigger a re-render.
+
+Let's consider the options -
+
+1. useState + useEffect: each FlagComponent runs an effect on mount that awaits the shared promise and setStates when it resolves. Works, but the
+downsides are that if you need this component in N different places, you will have N effects running, and N state updates, and that's a pitfall, more moving parts.
+2. Lift the load to the parent, and add a context with the loaded flags - works, clean and efficient, definitely worth considering, if you only need a single phone input, where all flags consumer are children of one provider.
+
+### useSyncExternalStore, but not what it was intended for
+
+useSyncExternalStore was added in React 18, to allow us subscribing to external stores.
+
+#### From the React docs:
+>Most of your React components will only read data from their props, state, and context. However, sometimes a component needs to read some data from some store outside of React that changes over time.
+
+This hook was added to prevent tearing, which is a problem that occurs when multiple components read from the same store, the same value, but the ui renders different (stale) values for some components.
+[see this discussion, explains the issue perfectly](https://github.com/reactwg/React-18/discussions/69)
+
+One gotcha: getSnapshot has to return a stable value between changes, or React loops forever comparing snapshots. (the comparison is using Object.is)
+
+#### Our use case
+
+Consider this piece of code:
+
+```tsx
+let loadedFlags: FlagsModule | null = null;
+const getFlagsSnapshot = () => loadedFlags;
+const getServerFlagsSnapshot = () => null;
+
+function useFlags() {
+  // we use useSyncExternalStore to read the flags, a value React does not need
+  // to own, and to trigger re-renders when they become available
+  return useSyncExternalStore(
+    // on mount, React calls subscribeToFlags with an internally-created listener
+    subscribeToFlags,
+    // before the flags are loaded, this returns null
+    getFlagsSnapshot,
+    getServerFlagsSnapshot
+  );
+}
+```
+
+We defined `loadedFlags` as a module level mutable variable, and use getFlagsSnapshot to read it.
+`getServerFlagsSnapshot` is used for server-side rendering, and it returns null, for ssr purposes, we don't need to render this on the server. (can be dropped if you're not using ssr)
+
+and `useFlags` is a hook that uses `useSyncExternalStore` to read the flags, and trigger re-renders when needed.
+
+Our flags module is a write-once, never-mutates-again value. There's no tearing risk — it goes null → loaded, once, forever.
+
+So on paper this is the wrong tool: we're not solving the problem it was built for.
+My idea was to re-frame (iykyk) the 'lazily loaded flags' as 'external flags store with exactly one state transition'.
+
+Let's look at the `subscribeToFlags` subscribe function:
+
+```tsx
+let flagsRequested = false;
+const flagsListeners = new Set<() => void>();
+
+function subscribeToFlags(listener: () => void) {
+  // each mounted component, creates a listener
+  flagsListeners.add(listener);
+  if (!flagsRequested) {
+    flagsRequested = true;
+    // the first component that mounts does the import of flags
+    import('React-phone-number-input/flags')
+      .then(module => {
+        loadedFlags = module.default;
+        for (const notify of flagsListeners) {
+          notify();
+        }
+      })
+      .catch(() => {
+        flagsRequested = false;
+        // Flags stay unavailable; the EarthIcon fallback keeps rendering.
+      });
+  }
+  return () => {
+    // on unmount, remove the listener
+    flagsListeners.delete(listener);
+  };
+}
+```
+
+Here, we define `flagsRequested`, a module level boolean that simply says wether the flags have been requested or not.
+We also define `flagsListeners`, a Set of listeners that will be called when the flags are loaded.
+
+The subscribe function is responsible for the import of the flags, only the first mount of PhoneInput will trigger the import.
+The module cache already guarantees the chunk only downloads once — what `flagsRequested` buys us is skipping the redundant `.then` and notify loop on every subsequent mount.
+
+After the import resolves we notify every listener, which re-renders each flag that's currently on screen. Note the subscriber is the FlagComponent, not the
+PhoneInput — every flag is its own subscription, which is exactly why the cleanup-on-unmount matters once you've got hundreds of them flicking in and out of the popup.
+
+The benefits:
+1. The subscription is the loader, we hung the lazy import() off the first subscription.
+So the flags load exactly when the first flag becomes visible, not at module-eval time, not on a useEffect somewhere.
+^^ That's in my opinion the creative part of this misuse of the hook.
+
+2. SSR is handled by a parameter, not by the developer - If you used nextjs or any other ssr framework - this is a real pain in the butt.
+The third argument takes care of it, getServerSnapshot returning null — means the server renders the fallback, and the client's first render also reads null, so hydration markup matches.
+
+3. Unmount safety is part of the contract. subscribe returns its cleanup, React calls it on unmount, the listener leaves the set. With 250 rows mounting and
+unmounting every time the popup opens and closes, that matters.
+
+### Why I think this misuse is creative, but not optimal
+
+A useState + useEffect + shared-promise version would work.
+A higher up context provider would work.
+And you know what? They would probably be simpler to read and understand for other developers, and that's a big deal.
+That's why I think it's not optimal but why is it creative?
+
+It makes the problem match the hook's native shape:
+
+- "When does it load?" → answered by subscribe.
+- "What do I render before it loads?" → answered by getSnapshot returning null.
+- "What about the server?" → answered by getServerSnapshot.
+- "What if it's already loaded when I mount?" → answered by snapshot being a pull.
+- "How do I avoid leaks?" → answered by the cleanup return.
+
+<strong>This instead of assembling a solution out of primitives, feels nice to me.</strong> It's not
+"using the api and also handling the edge cases" its more "handling the edge cases is using the api"
+
+I'm still realistic - the price of 'creativity' here is that the intent isn't obvious, especially with this hook which is widely unkown...
+I interviewed a lot of frontend developers this past 4 months, most of them don't have a clue what this hook does, and <strong>all of them</strong> haven't used it.
+That's why I documented this usage in our codebase, and, it's a component that hides this complexity, so using it is probably really easy, you don't even need to know it uses this hook under the hood.
+
+
+### Back to the INP issue
+
+Remember the actual symptom? the lag between clicking the country selector and the list showing up? Lazy-loading the flags didn't solve that.
+So let's actually fix it.
+
+Open the code and the culprit is sitting right there: the combobox renders <strong>every</strong> country at once. All ~250 of them. Each row is a component with an
+SVG flag and a calling-code lookup, and they all get mounted synchronously the moment you open the list. That's the work blocking the main thread — React building
+a thousand-ish DOM nodes before the browser is allowed to paint anything.
+
+The fix is virtualization: only render the rows you can actually see (~12 at a time), and recycle them as you scroll.
+Base UI's combobox supports it out of the box with a virtualized prop, and it plays nicely with @tanstack/react-virtual
+[Virtualized example](https://base-ui.com/react/components/combobox#virtualized)
+
+```tsx
+const virtualizer = useVirtualizer({
+  enabled: open,
+  count: countries.length,
+  getScrollElement: () => scrollElementRef.current,
+  estimateSize: () => 28,
+  overscan: 5,
+});
+
+// ...only map over the visible slice
+{virtualizer.getVirtualItems().map(virtualItem => {
+  const item = countries[virtualItem.index];
+  return (
+    <ComboboxItem
+      key={item.value}
+      ref={virtualizer.measureElement}
+      index={virtualItem.index}
+      style={{ transform: `translateY(${virtualItem.start}px)` }}
+      // ...
+    />
+  );
+})}
+```
+
+So the virtualization shrinked the amount of work react does. But if we really want to improve INP metrics,
+we need to tell react to move the rendering off the critical part - and that is where startTransition come in to play:
+
+```tsx
+onOpenChange={nextOpen => {
+  // transition so the browser can paint first (INP).
+  startTransition(() => {
+    setOpen(nextOpen);
+    if (!nextOpen) {
+      setSearchValue('');
+    }
+  });
+}}
+```
+
+Remember INP is interaction-to-<strong>paint</strong> — everything React does synchronously in that click handler is time the user spends staring at an unchanged screen.
+startTransition tells React the popup mount isn't urgent: paint first, render the list a beat later. The work is the same, it just stops blocking the
+pixel the user is waiting for.
+
+### So, should you trust all those registeries?
+
+I'm not telling you to stop using shadcn-style registries — I opened this whole post saying I like them, and I meant it. We build our entire design system on top of
+this approach. The speed is real.
+
+But "install a component and own the code" cuts both ways. You own the code — which means you own the eager import of 250 SVGs, the un-virtualized list, the
+synchronous mount that tanks your INP on a busy page. Nobody's shipping you a patch. The registry handed you a starting point that looked finished, and "looks
+finished" is exactly the trap — it worked great in the isolated demo, the same way it works great on this blog page. It's your real app, with its real forms and
+dialogs and the rest of the page competing for the main thread, that tells the truth.
+
+So copy the component. Then read it like you'd read a PR from someone you've never met!
