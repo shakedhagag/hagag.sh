@@ -68,6 +68,29 @@ export function BlogToc({ contentKey }: { contentKey: string }) {
     return () => observer.disconnect();
   }, [items]);
 
+  function handleSelectHeading(id: string, closeMobile = false) {
+    const heading = document.getElementById(id);
+    if (!heading) return;
+
+    heading.scrollIntoView({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+
+    navigate({
+      hash: id,
+      replace: true,
+      resetScroll: false,
+      hashScrollIntoView: false,
+      viewTransition: false,
+    });
+    setActiveId(id);
+
+    if (closeMobile) {
+      setMobileOpen(false);
+    }
+  }
+
   if (items.length === 0) {
     return null;
   }
@@ -98,23 +121,7 @@ export function BlogToc({ contentKey }: { contentKey: string }) {
                   )}
                   onClick={event => {
                     event.preventDefault();
-
-                    const heading = document.getElementById(item.id);
-                    if (!heading) return;
-
-                    heading.scrollIntoView({
-                      behavior: reduceMotion ? 'auto' : 'smooth',
-                      block: 'start',
-                    });
-
-                    navigate({
-                      hash: item.id,
-                      replace: true,
-                      resetScroll: false,
-                      hashScrollIntoView: false,
-                      viewTransition: false,
-                    });
-                    setActiveId(item.id);
+                    handleSelectHeading(item.id);
                   }}
                 >
                   <motion.span
@@ -160,25 +167,7 @@ export function BlogToc({ contentKey }: { contentKey: string }) {
                           ? 'text-foreground'
                           : 'text-muted-foreground hover:text-foreground'
                       )}
-                      onClick={() => {
-                        const heading = document.getElementById(item.id);
-                        if (!heading) return;
-
-                        heading.scrollIntoView({
-                          behavior: reduceMotion ? 'auto' : 'smooth',
-                          block: 'start',
-                        });
-
-                        navigate({
-                          hash: item.id,
-                          replace: true,
-                          resetScroll: false,
-                          hashScrollIntoView: false,
-                          viewTransition: false,
-                        });
-                        setActiveId(item.id);
-                        setMobileOpen(false);
-                      }}
+                      onClick={() => handleSelectHeading(item.id, true)}
                     >
                       {item.label}
                     </button>
