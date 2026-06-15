@@ -2,6 +2,7 @@ import { ArrowRightIcon } from '@phosphor-icons/react';
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { allPosts } from 'content-collections';
 import { format } from 'date-fns';
+import { BlogToc } from '@/components/blog-toc';
 import { BottomBlurGradientMask } from '@/components/bottom-blur-gradient-mask';
 import { mdxComponents } from '@/components/mdx-components';
 import {
@@ -130,6 +131,7 @@ function BlogPostOrGroup() {
 
   return (
     <>
+      <BlogToc contentKey={post.slug} />
       <article className="mb-10">
         <div className="flex flex-col">
           <h1
@@ -145,7 +147,7 @@ function BlogPostOrGroup() {
             {formattedDate}
           </p>
         </div>
-        <div className="markdown prose prose-blog mt-10">
+        <div data-post-content className="markdown prose prose-blog mt-10">
           {PostContent ? <PostContent components={mdxComponents} /> : null}
         </div>
       </article>
