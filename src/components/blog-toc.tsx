@@ -1,4 +1,5 @@
 import { Drawer } from '@base-ui/react/drawer';
+import { ListIcon } from '@phosphor-icons/react';
 import { useNavigate } from '@tanstack/react-router';
 import { motion, useReducedMotion } from 'motion/react';
 import { useEffect, useState } from 'react';
@@ -143,8 +144,8 @@ export function BlogToc({ contentKey }: { contentKey: string }) {
       </nav>
 
       <Drawer.Root open={mobileOpen} onOpenChange={setMobileOpen}>
-        <Drawer.Trigger className="fixed right-4 bottom-4 z-20 rounded-full border border-border/70 bg-background/95 px-4 py-2 font-medium text-foreground text-sm shadow-sm backdrop-blur xl:hidden">
-          On this page
+        <Drawer.Trigger className="fixed right-4 bottom-4 z-120 rounded-full border border-border/70 bg-background/95 px-3 py-2 font-medium text-foreground text-lg shadow-sm backdrop-blur xl:hidden">
+          <ListIcon />
         </Drawer.Trigger>
         <Drawer.Portal>
           <Drawer.Backdrop className="fixed inset-0 z-30 bg-black/45 data-ending-style:opacity-0 data-starting-style:opacity-0 xl:hidden" />
