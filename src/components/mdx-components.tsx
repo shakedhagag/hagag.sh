@@ -1,17 +1,17 @@
-import { ScrollArea } from "@base-ui/react/scroll-area";
-import { CheckIcon, CopyIcon } from "@phosphor-icons/react";
-import { Link } from "@tanstack/react-router";
+import { ScrollArea } from '@base-ui/react/scroll-area';
+import { CheckIcon, CopyIcon } from '@phosphor-icons/react';
+import { Link } from '@tanstack/react-router';
 import {
   type ComponentProps,
   type ComponentType,
   useRef,
   useState,
-} from "react";
+} from 'react';
 
 type MDXComponents = Record<string, ComponentType<any>>;
 
-function BlogLink({ href = "", ...props }: ComponentProps<"a">) {
-  if (href.startsWith("/")) {
+function BlogLink({ href = '', ...props }: ComponentProps<'a'>) {
+  if (href.startsWith('/')) {
     return <Link to={href} {...props} />;
   }
 
@@ -23,8 +23,8 @@ function BlogHeading({
   children,
   id,
   ...props
-}: ComponentProps<"h2"> & {
-  as: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+}: ComponentProps<'h2'> & {
+  as: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }) {
   return (
     <Component id={id} {...props}>
@@ -50,9 +50,9 @@ function BlogHeading({
 
 function BlogCodeBlock({
   children,
-  className = "",
+  className = '',
   ...props
-}: ComponentProps<"pre">) {
+}: ComponentProps<'pre'>) {
   const [copied, setCopied] = useState(false);
   const preRef = useRef<HTMLPreElement>(null);
 
@@ -73,7 +73,7 @@ function BlogCodeBlock({
         ) : (
           <CopyIcon className="size-4" weight="bold" />
         )}
-        <span>{copied ? "Copied" : "Copy"}</span>
+        <span>{copied ? 'Copied' : 'Copy'}</span>
       </button>
       <ScrollArea.Root className="code-block-scroll">
         <ScrollArea.Viewport className="code-block-viewport">
@@ -94,11 +94,11 @@ function BlogCodeBlock({
 
 export const mdxComponents: MDXComponents = {
   a: BlogLink,
-  h1: (props) => <BlogHeading as="h1" {...props} />,
-  h2: (props) => <BlogHeading as="h2" {...props} />,
-  h3: (props) => <BlogHeading as="h3" {...props} />,
-  h4: (props) => <BlogHeading as="h4" {...props} />,
-  h5: (props) => <BlogHeading as="h5" {...props} />,
-  h6: (props) => <BlogHeading as="h6" {...props} />,
+  h1: props => <BlogHeading as="h1" {...props} />,
+  h2: props => <BlogHeading as="h2" {...props} />,
+  h3: props => <BlogHeading as="h3" {...props} />,
+  h4: props => <BlogHeading as="h4" {...props} />,
+  h5: props => <BlogHeading as="h5" {...props} />,
+  h6: props => <BlogHeading as="h6" {...props} />,
   pre: BlogCodeBlock,
 };

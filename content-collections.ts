@@ -1,11 +1,11 @@
 // content-collections.ts
-import { defineCollection, defineConfig } from '@content-collections/core'
-import { z } from 'zod'
-import matter from 'gray-matter'
+import { defineCollection, defineConfig } from '@content-collections/core';
+import matter from 'gray-matter';
+import { z } from 'zod';
 
 function extractFrontMatter(content: string) {
-  const { data, content: body, excerpt } = matter(content, { excerpt: true })
-  return { data, body, excerpt: excerpt || '' }
+  const { data, content: body, excerpt } = matter(content, { excerpt: true });
+  return { data, body, excerpt: excerpt || '' };
 }
 
 const posts = defineCollection({
@@ -21,11 +21,11 @@ const posts = defineCollection({
     customUrl: z.string().optional(),
   }),
   transform: async ({ content, ...post }) => {
-    const frontMatter = extractFrontMatter(content)
+    const frontMatter = extractFrontMatter(content);
 
     // Extract header image (first image in the document)
-    const headerImageMatch = content.match(/!\[([^\]]*)\]\(([^)]+)\)/)
-    const headerImage = headerImageMatch ? headerImageMatch[2] : undefined
+    const headerImageMatch = content.match(/!\[([^\]]*)\]\(([^)]+)\)/);
+    const headerImage = headerImageMatch ? headerImageMatch[2] : undefined;
 
     return {
       ...post,
@@ -34,10 +34,10 @@ const posts = defineCollection({
       spoiler: post.spoiler, // Use schema-validated spoiler
       headerImage,
       content: frontMatter.body,
-    }
+    };
   },
-})
+});
 
 export default defineConfig({
   content: [posts],
-})
+});

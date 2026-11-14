@@ -1,5 +1,5 @@
-import { type ClassValue, clsx } from 'clsx';
 import type { CSSProperties } from 'react';
+import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: Array<ClassValue>) {

@@ -5,7 +5,7 @@ export function Header() {
     <header className="mb-14 flex flex-row place-content-between">
       <Link
         to="/"
-        className="inline-block font-black font-sans text-2xl hover:scale-[1.02]"
+        className="inline-block font-sans text-2xl font-black hover:scale-[1.02]"
         viewTransition
       >
         <span
