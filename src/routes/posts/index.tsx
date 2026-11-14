@@ -60,7 +60,7 @@ function PostsIndex() {
 
   return (
     <>
-      <blockquote className="mb-8 text-pretty border-l-2 pl-4 font-semibold text-foreground/65 text-lg italic dark:text-foreground/75">
+      <blockquote className="mb-8 border-l-2 pl-4 text-lg font-semibold text-pretty text-foreground/65 italic dark:text-foreground/75">
         <svg
           className="mb-2 size-4 text-muted-foreground/60"
           aria-hidden="true"
@@ -77,14 +77,14 @@ function PostsIndex() {
           who've done great work seem to have done it.
         </p>
       </blockquote>
-      <h2 className="font-semibold text-foreground/45 text-sm uppercase leading-loose tracking-wider">
+      <h2 className="text-sm leading-loose font-semibold tracking-wider text-foreground/45 uppercase">
         Recent Posts
       </h2>
       <div className="relative top-5 flex flex-col gap-10">
         {groupedPosts.map((group, index) => (
           <section key={group.year} className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <h3 className="shrink-0 font-semibold text-foreground/45 text-xs uppercase leading-loose tracking-wider">
+              <h3 className="shrink-0 text-xs leading-loose font-semibold tracking-wider text-foreground/45 uppercase">
                 {group.year}
               </h3>
               {index > 0 ? <Separator className="flex-1" /> : null}
@@ -107,11 +107,11 @@ function PostsIndex() {
                         >
                           {post.title}
                         </ItemTitle>
-                        <ItemDescription className="text-pretty text-foreground/75 text-sm">
+                        <ItemDescription className="text-sm text-pretty text-foreground/75">
                           {post.spoiler}
                         </ItemDescription>
                         <ItemFooter
-                          className="text-foreground/45 text-xs leading-loose tracking-widest [view-transition-name:var(--post-date-transition)]"
+                          className="text-xs leading-loose tracking-widest text-foreground/45 [view-transition-name:var(--post-date-transition)]"
                           style={getPostDateTransitionStyle(post.slug)}
                         >
                           {format(post.date, 'MMMM dd, yyyy')}

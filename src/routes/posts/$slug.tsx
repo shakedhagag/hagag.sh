@@ -81,7 +81,7 @@ function BlogPostOrGroup() {
     const { group, posts } = data;
     return (
       <>
-        <h2 className="font-semibold text-card-foreground text-sm uppercase leading-loose tracking-wider">
+        <h2 className="text-sm leading-loose font-semibold tracking-wider text-card-foreground uppercase">
           {group.charAt(0).toUpperCase() + group.slice(1).replace(/-/g, ' ')}
         </h2>
         <div className="relative top-5 flex flex-col gap-8">
@@ -102,11 +102,11 @@ function BlogPostOrGroup() {
                     >
                       {post.title}
                     </ItemTitle>
-                    <ItemDescription className="text-pretty text-foreground/75 text-sm">
+                    <ItemDescription className="text-sm text-pretty text-foreground/75">
                       {post.spoiler}
                     </ItemDescription>
                     <ItemFooter
-                      className="text-foreground/45 text-xs leading-loose tracking-widest [view-transition-name:var(--post-date-transition)]"
+                      className="text-xs leading-loose tracking-widest text-foreground/45 [view-transition-name:var(--post-date-transition)]"
                       style={getPostDateTransitionStyle(post.slug)}
                     >
                       {format(post.date, 'MMMM dd, yyyy')}
@@ -135,19 +135,19 @@ function BlogPostOrGroup() {
       <article className="mb-10">
         <div className="flex flex-col">
           <h1
-            className="font-semibold text-3xl text-card-foreground [view-transition-name:var(--post-title-transition)]"
+            className="text-3xl font-semibold text-card-foreground [view-transition-name:var(--post-title-transition)]"
             style={getPostTitleTransitionStyle(post.slug)}
           >
             {post.title}
           </h1>
           <p
-            className="mt-2 mb-4 text-left text-muted-foreground text-sm [view-transition-name:var(--post-date-transition)]"
+            className="mt-2 mb-4 text-left text-sm text-muted-foreground [view-transition-name:var(--post-date-transition)]"
             style={getPostDateTransitionStyle(post.slug)}
           >
             {formattedDate}
           </p>
         </div>
-        <div data-post-content className="markdown prose prose-blog mt-10">
+        <div data-post-content className="markdown prose mt-10 prose-blog">
           {PostContent ? <PostContent components={mdxComponents} /> : null}
         </div>
       </article>

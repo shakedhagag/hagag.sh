@@ -1,5 +1,5 @@
-import { transformerNotationWordHighlight } from '@shikijs/transformers';
 import type { ShikiTransformer } from 'shiki';
+import { transformerNotationWordHighlight } from '@shikijs/transformers';
 
 type Commands = {
   bun: string;

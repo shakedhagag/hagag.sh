@@ -1,9 +1,9 @@
 'use client';
 
-import { GlobeHemisphereWestIcon } from '@phosphor-icons/react';
 import type { ComponentProps } from 'react';
+import { GlobeHemisphereWestIcon } from '@phosphor-icons/react';
 import { createContext, useContext, useMemo, useState } from 'react';
-// biome-ignore lint/performance/noNamespaceImport: needed
+// oxlint-disable-next-line import/no-namespace -- needed
 import * as BasePhoneInput from 'react-phone-number-input';
 import flags from 'react-phone-number-input/flags';
 import { Button } from '@/components/ui/button';
@@ -192,7 +192,7 @@ const CountrySelect = ({
           value={searchValue}
           onChange={e => setSearchValue(e.target.value)}
           showTrigger={false}
-          className="rounded-none border-0 border-input px-0 py-2.5 shadow-none outline-none! ring-0! focus-visible:border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="rounded-none border-0 border-input px-0 py-2.5 shadow-none ring-0! outline-none! focus-visible:border-border focus-visible:ring-0 focus-visible:ring-offset-0"
         />
         <ComboboxSeparator />
         <ComboboxEmpty className="px-4 py-2.5 text-sm">
@@ -214,7 +214,7 @@ const CountrySelect = ({
                         countryName={item.label}
                       />
                       <span className="flex-1 text-sm">{item.label}</span>
-                      <span className="text-foreground/50 text-sm">
+                      <span className="text-sm text-foreground/50">
                         {`+${BasePhoneInput.getCountryCallingCode(item.value)}`}
                       </span>
                     </ComboboxItem>

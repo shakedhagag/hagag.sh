@@ -102,7 +102,7 @@ export function BlogToc({ contentKey }: { contentKey: string }) {
         aria-label="Table of contents"
         className="fixed top-1/2 left-8 z-20 hidden max-h-[70vh] w-56 -translate-y-1/2 overflow-y-auto pr-3 xl:block"
       >
-        <p className="mb-3 font-medium text-muted-foreground text-xs uppercase tracking-widest">
+        <p className="mb-3 text-xs font-medium tracking-widest text-muted-foreground uppercase">
           On this page
         </p>
         <ul className="space-y-1">
@@ -144,13 +144,13 @@ export function BlogToc({ contentKey }: { contentKey: string }) {
       </nav>
 
       <Drawer.Root open={mobileOpen} onOpenChange={setMobileOpen}>
-        <Drawer.Trigger className="fixed right-4 bottom-4 z-120 rounded-full border border-border/70 bg-background/95 px-3 py-2 font-medium text-foreground text-lg shadow-sm backdrop-blur xl:hidden">
+        <Drawer.Trigger className="fixed right-4 bottom-4 z-120 rounded-full border border-border/70 bg-background/95 px-3 py-2 text-lg font-medium text-foreground shadow-sm backdrop-blur xl:hidden">
           <ListIcon />
         </Drawer.Trigger>
         <Drawer.Portal>
           <Drawer.Backdrop className="fixed inset-0 z-30 bg-black/45 data-ending-style:opacity-0 data-starting-style:opacity-0 xl:hidden" />
           <Drawer.Popup className="fixed inset-x-0 bottom-0 z-40 max-h-[75vh] rounded-t-md border border-border/70 bg-background p-4 pb-6 shadow-xl data-ending-style:translate-y-full data-starting-style:translate-y-full xl:hidden">
-            <Drawer.Title className="mb-3 font-medium text-muted-foreground text-xs uppercase tracking-widest">
+            <Drawer.Title className="mb-3 text-xs font-medium tracking-widest text-muted-foreground uppercase">
               On this page
             </Drawer.Title>
             <ul className="max-h-[60vh] space-y-2 overflow-y-auto pr-1">

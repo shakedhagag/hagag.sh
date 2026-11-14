@@ -1,7 +1,6 @@
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
-
 import appCss from '@/styles/globals.css?url';
 
 export const Route = createRootRoute({
@@ -57,7 +56,7 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
   notFoundComponent: () => (
     <main className="mx-auto max-w-2xl px-6 py-24">
-      <h1 className="font-semibold text-3xl text-card-foreground">
+      <h1 className="text-3xl font-semibold text-card-foreground">
         Page not found
       </h1>
       <p className="mt-3 text-muted-foreground">
