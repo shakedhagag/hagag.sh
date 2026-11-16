@@ -9,5 +9,8 @@
   // trailing-slash URL.
   "assets": {
     "html_handling": "drop-trailing-slash"
-  }
+  },
+  // Worker Previews: every branch gets its own preview URL via
+  // `wrangler preview`. No bindings or vars yet, so nothing to override.
+  "previews": {}
 }

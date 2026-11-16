@@ -8,6 +8,7 @@
     "check": "vp check",
     "check:fix": "vp check --fix",
     "deploy": "vp build && wrangler deploy",
+    "deploy:preview": "vp build && wrangler preview",
     "dev": "vp dev --port 3000",
     "fmt": "vp fmt",
     "knip": "knip",
