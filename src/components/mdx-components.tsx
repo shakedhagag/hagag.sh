@@ -1,14 +1,8 @@
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { CheckIcon, CopyIcon } from '@phosphor-icons/react';
 import { Link } from '@tanstack/react-router';
-import {
-  type ComponentProps,
-  type ComponentType,
-  useRef,
-  useState,
-} from 'react';
-
-type MDXComponents = Record<string, ComponentType<any>>;
+import { type ComponentProps, useRef, useState } from 'react';
+import type { MDXComponents } from '@/lib/mdx';
 
 function BlogLink({ href = '', ...props }: ComponentProps<'a'>) {
   if (href.startsWith('/')) {

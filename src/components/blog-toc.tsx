@@ -3,70 +3,55 @@ import { ListIcon } from '@phosphor-icons/react';
 import { useNavigate } from '@tanstack/react-router';
 import { motion, useReducedMotion } from 'motion/react';
 import { useEffect, useState } from 'react';
+import type { TocItem } from '@/lib/mdx';
 import { cn } from '@/lib/utils';
 
-type TocItem = {
-  id: string;
-  label: string;
-  level: 2 | 3;
-};
+// A heading becomes active once its top scrolls above this line. Kept close
+// to the top so the heading you jump to from the TOC is the one highlighted.
+const ACTIVE_LINE_PX = 100;
 
-const TOC_IO_ROOT_MARGIN = '0% 0% -80% 0%';
-const HEADING_HASH_PREFIX_REGEX = /^#/;
+function getActiveId(items: Array<TocItem>) {
+  const scrolledToBottom =
+    window.innerHeight + window.scrollY >=
+    document.documentElement.scrollHeight - 2;
+  if (scrolledToBottom) return items.at(-1)?.id ?? null;
 
-export function BlogToc({ contentKey }: { contentKey: string }) {
-  const [items, setItems] = useState<Array<TocItem>>([]);
+  let active: string | null = null;
+  for (const item of items) {
+    const heading = document.getElementById(item.id);
+    if (!heading) continue;
+    if (heading.getBoundingClientRect().top > ACTIVE_LINE_PX) break;
+    active = item.id;
+  }
+  return active;
+}
+
+export function BlogToc({ items }: { items: Array<TocItem> }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const reduceMotion = useReducedMotion();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const root = document.querySelector('[data-post-content]');
-    if (!root) {
-      setItems([]);
-      return;
-    }
+    if (items.length === 0) return;
 
-    const headings = Array.from(
-      root.querySelectorAll('h2[id], h3[id]')
-    ) as Array<HTMLHeadingElement>;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      setActiveId(getActiveId(items));
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
 
-    setItems(
-      headings.map(heading => ({
-        id: heading.id,
-        label:
-          heading.querySelector('.heading-link')?.textContent?.trim() ??
-          heading.textContent?.replace(HEADING_HASH_PREFIX_REGEX, '').trim() ??
-          heading.id,
-        level: heading.tagName.toLowerCase() === 'h3' ? 3 : 2,
-      }))
-    );
-  }, [contentKey]);
-
-  useEffect(() => {
-    if (items.length === 0) {
-      setActiveId(null);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: TOC_IO_ROOT_MARGIN, threshold: 0 }
-    );
-
-    items.forEach(item => {
-      const heading = document.getElementById(item.id);
-      if (heading) observer.observe(heading);
-    });
-
-    return () => observer.disconnect();
+    update();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+    };
   }, [items]);
 
   function handleSelectHeading(id: string, closeMobile = false) {
