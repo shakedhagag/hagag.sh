@@ -216,6 +216,19 @@ const config = defineConfig({
           'typescript/consistent-type-definitions': 'off',
         },
       },
+      {
+        // Vendored from the Fluid Functionalism registry; kept stock so
+        // updates diff cleanly.
+        files: [
+          'src/components/fluid-hover-highlight.tsx',
+          'src/hooks/use-fluid-hover.ts',
+          'src/lib/springs.ts',
+        ],
+        rules: {
+          'no-empty-function': 'off',
+          'typescript/consistent-type-definitions': 'off',
+        },
+      },
     ],
     jsPlugins: [
       {

@@ -1,8 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { format } from 'date-fns';
+import { useRef } from 'react';
+import { FluidHoverHighlight } from '@/components/fluid-hover-highlight';
 import { PostListItem } from '@/components/post-list-item';
 import { Separator } from '@/components/ui/separator';
+import { useFluidHover } from '@/hooks/use-fluid-hover';
 import { getListedPosts, type PostSummary } from '@/lib/posts';
+
+const POST_GAP_PX = 32;
 
 export const Route = createFileRoute('/posts/')({
   component: PostsIndex,
@@ -28,6 +33,14 @@ function groupPostsByYear(posts: Array<PostSummary>) {
 
 function PostsIndex() {
   const groupedPosts = groupPostsByYear(getListedPosts());
+  const listRef = useRef<HTMLDivElement>(null);
+  const hover = useFluidHover(listRef, {
+    nearest: true,
+    gapClick: { maxDistance: POST_GAP_PX / 2 },
+  });
+  const firstPostIndexByGroup = groupedPosts.map((_, i) =>
+    groupedPosts.slice(0, i).reduce((n, g) => n + g.posts.length, 0)
+  );
 
   return (
     <>
@@ -51,7 +64,12 @@ function PostsIndex() {
       <h2 className="text-sm leading-loose font-semibold tracking-wider text-foreground/45 uppercase">
         Recent Posts
       </h2>
-      <div className="relative inset-bs-5 flex flex-col gap-10">
+      <div
+        ref={listRef}
+        {...hover.handlers}
+        className="relative inset-bs-5 flex flex-col gap-10"
+      >
+        <FluidHoverHighlight hover={hover} className="rounded-md" />
         {groupedPosts.map((group, index) => (
           <section key={group.year} className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
@@ -60,12 +78,14 @@ function PostsIndex() {
               </h3>
               {index > 0 ? <Separator className="flex-1" /> : null}
             </div>
-            <div className="flex flex-col gap-8">
-              {group.posts.map(post => (
+            <div className="flex flex-col" style={{ gap: POST_GAP_PX }}>
+              {group.posts.map((post, postIndex) => (
                 <PostListItem
                   key={post.slug}
                   post={post}
                   titleClassName="text-lg"
+                  index={firstPostIndexByGroup[index] + postIndex}
+                  registerItem={hover.registerItem}
                 />
               ))}
             </div>

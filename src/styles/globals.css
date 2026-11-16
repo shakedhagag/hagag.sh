@@ -53,6 +53,8 @@
   --sidebar-accent-foreground: light-dark(oklch(0.205 0 none), oklch(0.985 0 none));
   --sidebar-border: light-dark(oklch(0.922 0 none), oklch(1 0 none / 10%));
   --sidebar-ring: light-dark(oklch(0.708 0 none), oklch(0.556 0 none));
+  --hover: light-dark(rgb(0 0 0 / 0.04), rgb(255 255 255 / 0.06));
+  --active: light-dark(rgb(0 0 0 / 0.07), rgb(255 255 255 / 0.1));
 }
 
 .dark {
@@ -101,6 +103,8 @@
   --font-sans: "Manrope Variable", sans-serif;
   --font-heading: "Inter Variable", sans-serif;
   --font-mono: "Geist Mono", monospace;
+  --color-hover: var(--hover);
+  --color-active: var(--active);
 }
 
 @theme {

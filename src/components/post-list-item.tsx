@@ -1,6 +1,7 @@
 import { ArrowRightIcon } from '@phosphor-icons/react';
 import { Link } from '@tanstack/react-router';
 import { format } from 'date-fns';
+import { useRef } from 'react';
 import type { PostSummary } from '@/lib/posts';
 import {
   Item,
@@ -11,6 +12,10 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import {
+  type UseFluidHoverReturn,
+  useRegisterFluidHoverItem,
+} from '@/hooks/use-fluid-hover';
+import {
   cn,
   getPostDateTransitionStyle,
   getPostTitleTransitionStyle,
@@ -19,14 +24,27 @@ import {
 export function PostListItem({
   post,
   titleClassName,
+  index,
+  registerItem,
 }: {
   post: PostSummary;
   titleClassName?: string;
+  index?: number;
+  registerItem?: UseFluidHoverReturn['registerItem'];
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useRegisterFluidHoverItem(registerItem, index, ref);
+
   return (
     // One link in the title; its ::after covers the card, so the whole card
     // is clickable while a screen reader announces only the title.
-    <Item className="relative grid grid-cols-[1fr_auto] rounded-md hover:scale-[1.005] hover:bg-muted active:scale-[0.98] has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50 motion-safe:transition-[background-color,scale] motion-safe:duration-150 motion-safe:ease-out">
+    <Item
+      ref={ref}
+      className={cn(
+        'relative grid grid-cols-[1fr_auto] rounded-md active:scale-[0.98] has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50 motion-safe:transition-[background-color,scale] motion-safe:duration-150 motion-safe:ease-out',
+        !registerItem && 'hover:scale-[1.005] hover:bg-muted'
+      )}
+    >
       <ItemContent>
         <ItemTitle
           className={cn(
