@@ -1,6 +1,10 @@
+import interFont from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import manropeFont from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import { fontPreload, shareMeta } from '@/lib/head';
+import { SITE_CARD } from '@/lib/share-cards';
 import appCss from '@/styles/globals.css?url';
 
 export const Route = createRootRoute({
@@ -13,15 +17,16 @@ export const Route = createRootRoute({
         name: 'viewport',
         content: 'width=device-width, initial-scale=1',
       },
-      {
-        title: 'hagag.sh',
-      },
+      // Site-wide defaults; routes override them by name/property.
+      ...shareMeta(SITE_CARD),
       {
         name: 'apple-mobile-web-app-title',
         content: 'shagag',
       },
     ],
     links: [
+      fontPreload(manropeFont),
+      fontPreload(interFont),
       {
         rel: 'stylesheet',
         href: appCss,

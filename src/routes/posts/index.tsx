@@ -1,40 +1,17 @@
-import { ArrowRightIcon } from '@phosphor-icons/react';
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { allPosts } from 'content-collections';
+import { createFileRoute } from '@tanstack/react-router';
 import { format } from 'date-fns';
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemFooter,
-  ItemTitle,
-} from '@/components/ui/item';
+import { PostListItem } from '@/components/post-list-item';
 import { Separator } from '@/components/ui/separator';
-import {
-  getPostDateTransitionStyle,
-  getPostTitleTransitionStyle,
-} from '@/lib/utils';
-
-type Post = {
-  _meta: { path: string };
-  title: string;
-  date: string;
-  spoiler: string;
-  group?: string;
-  customUrl?: string;
-  slug: string;
-  excerpt: string;
-  headerImage?: string;
-  content: string;
-};
+import { canonical } from '@/lib/head';
+import { getListedPosts, type PostSummary } from '@/lib/posts';
 
 export const Route = createFileRoute('/posts/')({
+  head: () => canonical('/posts'),
   component: PostsIndex,
 });
 
-function groupPostsByYear(posts: Array<Post>) {
-  return posts.reduce<Array<{ year: string; posts: Array<Post> }>>(
+function groupPostsByYear(posts: Array<PostSummary>) {
+  return posts.reduce<Array<{ year: string; posts: Array<PostSummary> }>>(
     (groups, post) => {
       const year = format(post.date, 'yyyy');
       const currentGroup = groups.at(-1);
@@ -52,11 +29,7 @@ function groupPostsByYear(posts: Array<Post>) {
 }
 
 function PostsIndex() {
-  // Posts are sorted by date
-  const sortedPosts = (allPosts as Array<Post>)
-    .filter(post => !post.group)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  const groupedPosts = groupPostsByYear(sortedPosts);
+  const groupedPosts = groupPostsByYear(getListedPosts());
 
   return (
     <>
@@ -91,37 +64,10 @@ function PostsIndex() {
             </div>
             <div className="flex flex-col gap-8">
               {group.posts.map(post => (
-                <Item
+                <PostListItem
                   key={post.slug}
-                  render={
-                    <Link
-                      to="/posts/$slug"
-                      viewTransition
-                      params={{ slug: post.slug }}
-                      className="grid scale-100 grid-cols-[1fr_auto] rounded-md p-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
-                    >
-                      <ItemContent>
-                        <ItemTitle
-                          className="text-lg [view-transition-name:var(--post-title-transition)]"
-                          style={getPostTitleTransitionStyle(post.slug)}
-                        >
-                          {post.title}
-                        </ItemTitle>
-                        <ItemDescription className="text-sm text-pretty text-foreground/75">
-                          {post.spoiler}
-                        </ItemDescription>
-                        <ItemFooter
-                          className="text-xs leading-loose tracking-widest text-foreground/45 [view-transition-name:var(--post-date-transition)]"
-                          style={getPostDateTransitionStyle(post.slug)}
-                        >
-                          {format(post.date, 'MMMM dd, yyyy')}
-                        </ItemFooter>
-                      </ItemContent>
-                      <ItemActions>
-                        <ArrowRightIcon weight="bold" className="size-4" />
-                      </ItemActions>
-                    </Link>
-                  }
+                  post={post}
+                  titleClassName="text-lg"
                 />
               ))}
             </div>

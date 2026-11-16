@@ -1,137 +1,94 @@
-import { ArrowRightIcon } from '@phosphor-icons/react';
-import { createFileRoute, Link, notFound } from '@tanstack/react-router';
-import { allPosts } from 'content-collections';
+import geistMonoFont from '@fontsource/geist-mono/files/geist-mono-latin-400-normal.woff2?url';
+import { createFileRoute, notFound } from '@tanstack/react-router';
 import { format } from 'date-fns';
+import { Suspense, use } from 'react';
+import postPreloads from 'virtual:post-preloads';
 import { BlogToc } from '@/components/blog-toc';
 import { BottomBlurGradientMask } from '@/components/bottom-blur-gradient-mask';
 import { mdxComponents } from '@/components/mdx-components';
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemFooter,
-  ItemTitle,
-} from '@/components/ui/item';
+import { PostListItem } from '@/components/post-list-item';
+import { canonical, fontPreload, shareMeta } from '@/lib/head';
+import { getLoadedPostModule, loadPostModule } from '@/lib/post-modules';
+import { getGroup, getPost } from '@/lib/posts';
+import { postCard } from '@/lib/share-cards';
 import {
   getPostDateTransitionStyle,
   getPostTitleTransitionStyle,
 } from '@/lib/utils';
 
-const postModules = import.meta.glob<{
-  default: React.ComponentType<{
-    components?: Record<string, React.ComponentType<any>>;
-  }>;
-}>('/src/blog/**/*.mdx', { eager: true });
-
-type Post = {
-  _meta: { path: string };
-  title: string;
-  date: string;
-  spoiler: string;
-  group?: string;
-  customUrl?: string;
-  slug: string;
-  excerpt: string;
-  headerImage?: string;
-  content: string;
-};
-
 export const Route = createFileRoute('/posts/$slug')({
-  loader: ({ params }: { params: { slug: string } }) => {
-    // First check if it's a group
-    const groupedPosts = (allPosts as Array<Post>).filter(
-      post => post.group === params.slug
-    );
+  // Loader data is serialized into the HTML, so it carries only what renders.
+  loader: async ({ params: { slug } }) => {
+    const group = getGroup(slug);
+    if (group) return { type: 'group' as const, ...group };
 
-    if (groupedPosts.length > 0) {
+    const post = getPost(slug);
+    if (!post) throw notFound();
+
+    const { toc } = await loadPostModule(slug);
+    return {
+      type: 'post' as const,
+      card: postCard(post),
+      post,
+      toc,
+      preloads: postPreloads[slug] ?? [],
+    };
+  },
+  head: ({ loaderData, params }) => {
+    if (!loaderData) return {};
+    const page = canonical(`/posts/${params.slug}`);
+
+    if (loaderData.type === 'group') {
       return {
-        type: 'group' as const,
-        group: params.slug,
-        posts: groupedPosts.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        ),
+        meta: [...shareMeta(loaderData.card), ...page.meta],
+        links: page.links,
       };
     }
 
-    // Otherwise check if it's a post
-    const post = (allPosts as Array<Post>).find(p => p.slug === params.slug);
-    if (!post) {
-      throw notFound();
-    }
-
-    const contentPath = `/src/blog/${post._meta.path}.mdx`;
-    if (!postModules[contentPath]) {
-      throw notFound();
-    }
-
     return {
-      type: 'post' as const,
-      contentPath,
-      post,
+      meta: [...shareMeta(loaderData.card, { type: 'article' }), ...page.meta],
+      links: [
+        ...page.links,
+        fontPreload(geistMonoFont),
+        ...loaderData.preloads.map(href => ({ rel: 'modulepreload', href })),
+      ],
     };
   },
   component: BlogPostOrGroup,
 });
 
+function PostBody({ slug }: { slug: string }) {
+  // Loaded by the route loader on the server and on client navigations.
+  // On first hydration the chunk may still be in flight: suspending here
+  // keeps the server HTML on screen until it arrives.
+  const { default: Content } =
+    getLoadedPostModule(slug) ?? use(loadPostModule(slug));
+  return <Content components={mdxComponents} />;
+}
+
 function BlogPostOrGroup() {
   const data = Route.useLoaderData();
 
   if (data.type === 'group') {
-    const { group, posts } = data;
     return (
       <>
         <h2 className="text-sm leading-loose font-semibold tracking-wider text-card-foreground uppercase">
-          {group.charAt(0).toUpperCase() + group.slice(1).replace(/-/g, ' ')}
+          {data.card.title}
         </h2>
         <div className="relative top-5 flex flex-col gap-8">
-          {posts.map(post => (
-            <Item
-              key={post.slug}
-              render={
-                <Link
-                  to="/posts/$slug"
-                  params={{ slug: post.slug }}
-                  viewTransition
-                  className="grid scale-100 grid-cols-[1fr_auto] rounded-md p-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
-                >
-                  <ItemContent>
-                    <ItemTitle
-                      className="[view-transition-name:var(--post-title-transition)]"
-                      style={getPostTitleTransitionStyle(post.slug)}
-                    >
-                      {post.title}
-                    </ItemTitle>
-                    <ItemDescription className="text-sm text-pretty text-foreground/75">
-                      {post.spoiler}
-                    </ItemDescription>
-                    <ItemFooter
-                      className="text-xs leading-loose tracking-widest text-foreground/45 [view-transition-name:var(--post-date-transition)]"
-                      style={getPostDateTransitionStyle(post.slug)}
-                    >
-                      {format(post.date, 'MMMM dd, yyyy')}
-                    </ItemFooter>
-                  </ItemContent>
-                  <ItemActions>
-                    <ArrowRightIcon weight="bold" className="size-4" />
-                  </ItemActions>
-                </Link>
-              }
-            />
+          {data.posts.map(post => (
+            <PostListItem key={post.slug} post={post} />
           ))}
         </div>
       </>
     );
   }
 
-  const post = data.post;
-  const PostContent = postModules[data.contentPath]?.default;
-
-  const formattedDate = format(new Date(post.date), 'MMMM d, yyyy');
+  const { post } = data;
 
   return (
     <>
-      <BlogToc contentKey={post.slug} />
+      <BlogToc items={data.toc} />
       <article className="mb-10">
         <div className="flex flex-col">
           <h1
@@ -144,11 +101,13 @@ function BlogPostOrGroup() {
             className="mt-2 mb-4 text-left text-sm text-muted-foreground [view-transition-name:var(--post-date-transition)]"
             style={getPostDateTransitionStyle(post.slug)}
           >
-            {formattedDate}
+            {format(new Date(post.date), 'MMMM d, yyyy')}
           </p>
         </div>
-        <div data-post-content className="markdown prose mt-10 prose-blog">
-          {PostContent ? <PostContent components={mdxComponents} /> : null}
+        <div className="markdown prose mt-10 prose-blog">
+          <Suspense fallback={null}>
+            <PostBody slug={post.slug} />
+          </Suspense>
         </div>
       </article>
       <BottomBlurGradientMask />

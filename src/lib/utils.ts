@@ -6,7 +6,7 @@ export function cn(...inputs: Array<ClassValue>) {
   return twMerge(clsx(inputs));
 }
 
-export function getPostTitleTransitionName(slug: string) {
+function getPostTitleTransitionName(slug: string) {
   return `post-title-${slug.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
 }
 
@@ -18,7 +18,7 @@ export function getPostTitleTransitionStyle(
   };
 }
 
-export function getPostDateTransitionName(slug: string) {
+function getPostDateTransitionName(slug: string) {
   return `post-date-${slug.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
 }
 
