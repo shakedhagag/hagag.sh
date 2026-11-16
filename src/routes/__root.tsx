@@ -1,65 +1,79 @@
+import interFont from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import manropeFont from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import { canonical, fontPreload, shareMeta } from '@/lib/head';
+import { SITE_CARD } from '@/lib/share-cards';
 import appCss from '@/styles/globals.css?url';
 
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: 'hagag.sh',
-      },
-      {
-        name: 'apple-mobile-web-app-title',
-        content: 'shagag',
-      },
-    ],
-    links: [
-      {
-        rel: 'stylesheet',
-        href: appCss,
-      },
-      {
-        rel: 'icon',
-        type: 'image/png',
-        href: '/favicon-96x96.png',
-        sizes: '96x96',
-      },
-      {
-        rel: 'icon',
-        type: 'image/svg+xml',
-        href: '/favicon.svg',
-      },
-      {
-        rel: 'shortcut icon',
-        href: '/favicon.ico',
-      },
-      {
-        rel: 'apple-touch-icon',
-        sizes: '180x180',
-        href: '/apple-touch-icon.png',
-      },
-      {
-        rel: 'manifest',
-        href: '/site.webmanifest',
-      },
-    ],
-  }),
+  head: ({ matches }) => {
+    const page = canonical(matches.at(-1)?.pathname ?? '/');
+    return {
+      meta: [
+        {
+          charSet: 'utf-8',
+        },
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1',
+        },
+        // Site-wide defaults; routes override them by name/property.
+        ...shareMeta(SITE_CARD),
+        ...page.meta,
+        {
+          name: 'color-scheme',
+          content: 'dark',
+        },
+        {
+          name: 'apple-mobile-web-app-title',
+          content: 'shagag',
+        },
+      ],
+      links: [
+        ...page.links,
+        fontPreload(manropeFont),
+        fontPreload(interFont),
+        {
+          rel: 'stylesheet',
+          href: appCss,
+        },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          href: '/favicon-96x96.png',
+          sizes: '96x96',
+        },
+        {
+          rel: 'icon',
+          type: 'image/svg+xml',
+          href: '/favicon.svg',
+        },
+        {
+          rel: 'shortcut icon',
+          href: '/favicon.ico',
+        },
+        {
+          rel: 'apple-touch-icon',
+          sizes: '180x180',
+          href: '/apple-touch-icon.png',
+        },
+        {
+          rel: 'manifest',
+          href: '/site.webmanifest',
+        },
+      ],
+    };
+  },
 
   shellComponent: RootDocument,
   notFoundComponent: () => (
-    <main className="mx-auto max-w-2xl px-6 py-24">
+    <main className="content-grid py-24 [--content:39rem] [--gutter:1.5rem]">
       <h1 className="text-3xl font-semibold text-card-foreground">
         Page not found
       </h1>
-      <p className="mt-3 text-muted-foreground">
+      <p className="mbs-3 text-muted-foreground">
         The page you are looking for does not exist.
       </p>
     </main>

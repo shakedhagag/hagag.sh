@@ -1,14 +1,8 @@
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { CheckIcon, CopyIcon } from '@phosphor-icons/react';
 import { Link } from '@tanstack/react-router';
-import {
-  type ComponentProps,
-  type ComponentType,
-  useRef,
-  useState,
-} from 'react';
-
-type MDXComponents = Record<string, ComponentType<any>>;
+import { type ComponentProps, useRef, useState } from 'react';
+import type { MDXComponents } from '@/lib/mdx';
 
 function BlogLink({ href = '', ...props }: ComponentProps<'a'>) {
   if (href.startsWith('/')) {
@@ -68,11 +62,7 @@ function BlogCodeBlock({
   return (
     <figure className="not-prose code-block">
       <button className="code-block-copy" type="button" onClick={copyCode}>
-        {copied ? (
-          <CheckIcon weight="bold" />
-        ) : (
-          <CopyIcon className="size-4" weight="bold" />
-        )}
+        {copied ? <CheckIcon weight="bold" /> : <CopyIcon weight="bold" />}
         <span>{copied ? 'Copied' : 'Copy'}</span>
       </button>
       <ScrollArea.Root className="code-block-scroll">

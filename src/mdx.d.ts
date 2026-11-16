@@ -1,9 +1,8 @@
 declare module '*.mdx' {
-  import type { ComponentType } from 'react';
+  import type { MDXModule } from '@/lib/mdx';
 
-  const MDXComponent: ComponentType<{
-    components?: Record<string, ComponentType<any>>;
-  }>;
+  export const toc: MDXModule['toc'];
 
-  export default MDXComponent;
+  const MDXContent: MDXModule['default'];
+  export default MDXContent;
 }

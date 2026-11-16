@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  "entry": ["content-collections.ts"],
+  "project": ["src/**/*.{ts,tsx,css,mdx}", "plugins/**/*.ts", "tests/**/*.ts"],
+  "tanstack-router": true,
+  "vite": true,
+  "ignoreIssues": {
+    "src/routeTree.gen.ts": ["types"],
+    "src/components/ui/**": ["exports", "types"],
+    "src/components/fluid-hover-highlight.tsx": ["exports", "types"],
+    "src/hooks/use-fluid-hover.ts": ["exports", "types"],
+    "src/lib/springs.ts": ["exports", "types"]
+  }
+}

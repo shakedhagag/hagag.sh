@@ -7,7 +7,7 @@ export const Route = createFileRoute('/posts')({
 
 function PostsLayout() {
   return (
-    <div className="mx-auto max-w-3xl px-5 py-12">
+    <div className="content-grid py-12">
       <Header />
       <Outlet />
     </div>

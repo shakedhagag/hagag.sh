@@ -1,40 +1,20 @@
-import { ArrowRightIcon } from '@phosphor-icons/react';
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { allPosts } from 'content-collections';
+import { createFileRoute } from '@tanstack/react-router';
 import { format } from 'date-fns';
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemFooter,
-  ItemTitle,
-} from '@/components/ui/item';
+import { useRef } from 'react';
+import { FluidHoverHighlight } from '@/components/fluid-hover-highlight';
+import { PostListItem } from '@/components/post-list-item';
 import { Separator } from '@/components/ui/separator';
-import {
-  getPostDateTransitionStyle,
-  getPostTitleTransitionStyle,
-} from '@/lib/utils';
+import { useFluidHover } from '@/hooks/use-fluid-hover';
+import { getListedPosts, type PostSummary } from '@/lib/posts';
 
-type Post = {
-  _meta: { path: string };
-  title: string;
-  date: string;
-  spoiler: string;
-  group?: string;
-  customUrl?: string;
-  slug: string;
-  excerpt: string;
-  headerImage?: string;
-  content: string;
-};
+const POST_GAP_PX = 32;
 
 export const Route = createFileRoute('/posts/')({
   component: PostsIndex,
 });
 
-function groupPostsByYear(posts: Array<Post>) {
-  return posts.reduce<Array<{ year: string; posts: Array<Post> }>>(
+function groupPostsByYear(posts: Array<PostSummary>) {
+  return posts.reduce<Array<{ year: string; posts: Array<PostSummary> }>>(
     (groups, post) => {
       const year = format(post.date, 'yyyy');
       const currentGroup = groups.at(-1);
@@ -52,17 +32,21 @@ function groupPostsByYear(posts: Array<Post>) {
 }
 
 function PostsIndex() {
-  // Posts are sorted by date
-  const sortedPosts = (allPosts as Array<Post>)
-    .filter(post => !post.group)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  const groupedPosts = groupPostsByYear(sortedPosts);
+  const groupedPosts = groupPostsByYear(getListedPosts());
+  const listRef = useRef<HTMLDivElement>(null);
+  const hover = useFluidHover(listRef, {
+    nearest: true,
+    gapClick: { maxDistance: POST_GAP_PX / 2 },
+  });
+  const firstPostIndexByGroup = groupedPosts.map((_, i) =>
+    groupedPosts.slice(0, i).reduce((n, g) => n + g.posts.length, 0)
+  );
 
   return (
     <>
-      <blockquote className="mb-8 border-l-2 pl-4 text-lg font-semibold text-pretty text-foreground/65 italic dark:text-foreground/75">
+      <blockquote className="mbe-8 border-s-2 ps-4 text-lg font-semibold text-pretty text-foreground/65 italic dark:text-foreground/75">
         <svg
-          className="mb-2 size-4 text-muted-foreground/60"
+          className="mbe-2 size-4 text-muted-foreground/60"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
@@ -80,7 +64,12 @@ function PostsIndex() {
       <h2 className="text-sm leading-loose font-semibold tracking-wider text-foreground/45 uppercase">
         Recent Posts
       </h2>
-      <div className="relative top-5 flex flex-col gap-10">
+      <div
+        ref={listRef}
+        {...hover.handlers}
+        className="relative inset-bs-5 flex flex-col gap-10"
+      >
+        <FluidHoverHighlight hover={hover} className="rounded-md" />
         {groupedPosts.map((group, index) => (
           <section key={group.year} className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
@@ -89,39 +78,14 @@ function PostsIndex() {
               </h3>
               {index > 0 ? <Separator className="flex-1" /> : null}
             </div>
-            <div className="flex flex-col gap-8">
-              {group.posts.map(post => (
-                <Item
+            <div className="flex flex-col" style={{ gap: POST_GAP_PX }}>
+              {group.posts.map((post, postIndex) => (
+                <PostListItem
                   key={post.slug}
-                  render={
-                    <Link
-                      to="/posts/$slug"
-                      viewTransition
-                      params={{ slug: post.slug }}
-                      className="grid scale-100 grid-cols-[1fr_auto] rounded-md p-4 transition-transform hover:scale-[1.005] hover:bg-muted active:scale-100"
-                    >
-                      <ItemContent>
-                        <ItemTitle
-                          className="text-lg [view-transition-name:var(--post-title-transition)]"
-                          style={getPostTitleTransitionStyle(post.slug)}
-                        >
-                          {post.title}
-                        </ItemTitle>
-                        <ItemDescription className="text-sm text-pretty text-foreground/75">
-                          {post.spoiler}
-                        </ItemDescription>
-                        <ItemFooter
-                          className="text-xs leading-loose tracking-widest text-foreground/45 [view-transition-name:var(--post-date-transition)]"
-                          style={getPostDateTransitionStyle(post.slug)}
-                        >
-                          {format(post.date, 'MMMM dd, yyyy')}
-                        </ItemFooter>
-                      </ItemContent>
-                      <ItemActions>
-                        <ArrowRightIcon weight="bold" className="size-4" />
-                      </ItemActions>
-                    </Link>
-                  }
+                  post={post}
+                  titleClassName="text-lg"
+                  index={firstPostIndexByGroup[index] + postIndex}
+                  registerItem={hover.registerItem}
                 />
               ))}
             </div>
