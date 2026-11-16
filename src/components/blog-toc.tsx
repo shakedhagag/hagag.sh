@@ -1,8 +1,7 @@
 import { Drawer } from '@base-ui/react/drawer';
 import { ListIcon } from '@phosphor-icons/react';
 import { useNavigate } from '@tanstack/react-router';
-import { motion, useReducedMotion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { TocItem } from '@/lib/mdx';
 import { cn } from '@/lib/utils';
 
@@ -26,10 +25,16 @@ function getActiveId(items: Array<TocItem>) {
   return active;
 }
 
+// Input that means the reader is scrolling by hand again.
+const MANUAL_SCROLL_EVENTS = ['wheel', 'touchmove', 'keydown'] as const;
+
 export function BlogToc({ items }: { items: Array<TocItem> }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const reduceMotion = useReducedMotion();
+  // A heading picked from the TOC stays active through the smooth scroll to
+  // it (instead of every heading on the way lighting up in turn) and after
+  // it, until the reader scrolls by hand.
+  const pickedId = useRef<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,19 +43,30 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
     let frame = 0;
     const update = () => {
       frame = 0;
-      setActiveId(getActiveId(items));
+      if (!pickedId.current) setActiveId(getActiveId(items));
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
+    };
+    const release = () => {
+      if (!pickedId.current) return;
+      pickedId.current = null;
+      schedule();
     };
 
     update();
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
+    for (const event of MANUAL_SCROLL_EVENTS) {
+      window.addEventListener(event, release, { passive: true });
+    }
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
+      for (const event of MANUAL_SCROLL_EVENTS) {
+        window.removeEventListener(event, release);
+      }
     };
   }, [items]);
 
@@ -58,6 +74,12 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
     const heading = document.getElementById(id);
     if (!heading) return;
 
+    pickedId.current = id;
+    setActiveId(id);
+
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
     heading.scrollIntoView({
       behavior: reduceMotion ? 'auto' : 'smooth',
       block: 'start',
@@ -70,7 +92,6 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
       hashScrollIntoView: false,
       viewTransition: false,
     });
-    setActiveId(id);
 
     if (closeMobile) {
       setMobileOpen(false);
@@ -99,7 +120,7 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
                 <a
                   href={`#${item.id}`}
                   className={cn(
-                    'block text-sm transition-colors',
+                    'block text-sm transition-colors duration-150 motion-reduce:transition-none',
                     item.level === 3 && 'pl-3',
                     isActive
                       ? 'text-foreground'
@@ -110,17 +131,7 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
                     handleSelectHeading(item.id);
                   }}
                 >
-                  <motion.span
-                    initial={false}
-                    animate={{
-                      color: isActive
-                        ? 'var(--color-foreground)'
-                        : 'var(--color-muted-foreground)',
-                    }}
-                    transition={{ duration: reduceMotion ? 0 : 0.12 }}
-                  >
-                    {item.label}
-                  </motion.span>
+                  {item.label}
                 </a>
               </li>
             );
@@ -147,7 +158,7 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
                     <button
                       type="button"
                       className={cn(
-                        'block w-full text-left text-sm transition-colors',
+                        'block w-full text-left text-sm transition-colors duration-150 motion-reduce:transition-none',
                         item.level === 3 && 'pl-3',
                         isActive
                           ? 'text-foreground'

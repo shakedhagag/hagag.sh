@@ -2,11 +2,9 @@ import { createFileRoute } from '@tanstack/react-router';
 import { format } from 'date-fns';
 import { PostListItem } from '@/components/post-list-item';
 import { Separator } from '@/components/ui/separator';
-import { canonical } from '@/lib/head';
 import { getListedPosts, type PostSummary } from '@/lib/posts';
 
 export const Route = createFileRoute('/posts/')({
-  head: () => canonical('/posts'),
   component: PostsIndex,
 });
 

@@ -3,5 +3,11 @@
   "name": "shagag",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry"
+  "main": "@tanstack/react-start/server-entry",
+  // Prerendered pages are written as posts/<slug>/index.html. Serve them at
+  // /posts/<slug> (what links and canonicals use) instead of 307-ing to a
+  // trailing-slash URL.
+  "assets": {
+    "html_handling": "drop-trailing-slash"
+  }
 }

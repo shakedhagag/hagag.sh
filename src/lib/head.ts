@@ -43,9 +43,12 @@ export function shareMeta(
   ];
 }
 
-/** og:url meta plus the matching canonical link, for one page path. */
-export function canonical(path: string) {
-  const url = absoluteUrl(path);
+/**
+ * og:url meta plus the matching canonical link for a page, from the path the
+ * router matched (trailing slash dropped, as Cloudflare serves it).
+ */
+export function canonical(pathname: string) {
+  const url = absoluteUrl(pathname.replace(/(.)\/$/, '$1'));
   return {
     meta: [{ property: 'og:url', content: url }],
     links: [{ rel: 'canonical', href: url }],

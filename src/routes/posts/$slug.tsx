@@ -7,7 +7,7 @@ import { BlogToc } from '@/components/blog-toc';
 import { BottomBlurGradientMask } from '@/components/bottom-blur-gradient-mask';
 import { mdxComponents } from '@/components/mdx-components';
 import { PostListItem } from '@/components/post-list-item';
-import { canonical, fontPreload, shareMeta } from '@/lib/head';
+import { fontPreload, shareMeta } from '@/lib/head';
 import { getLoadedPostModule, loadPostModule } from '@/lib/post-modules';
 import { getGroup, getPost } from '@/lib/posts';
 import { postCard } from '@/lib/share-cards';
@@ -34,21 +34,14 @@ export const Route = createFileRoute('/posts/$slug')({
       preloads: postPreloads[slug] ?? [],
     };
   },
-  head: ({ loaderData, params }) => {
+  head: ({ loaderData }) => {
     if (!loaderData) return {};
-    const page = canonical(`/posts/${params.slug}`);
-
-    if (loaderData.type === 'group') {
-      return {
-        meta: [...shareMeta(loaderData.card), ...page.meta],
-        links: page.links,
-      };
-    }
+    if (loaderData.type === 'group')
+      return { meta: shareMeta(loaderData.card) };
 
     return {
-      meta: [...shareMeta(loaderData.card, { type: 'article' }), ...page.meta],
+      meta: shareMeta(loaderData.card, { type: 'article' }),
       links: [
-        ...page.links,
         fontPreload(geistMonoFont),
         ...loaderData.preloads.map(href => ({ rel: 'modulepreload', href })),
       ],

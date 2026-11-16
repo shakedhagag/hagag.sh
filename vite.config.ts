@@ -13,6 +13,15 @@ import rehypeSlug from 'rehype-slug';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
 import { defineConfig, lazyPlugins } from 'vite-plus';
+import { ogImages } from './plugins/og-images';
+import { postPreloads } from './plugins/post-preloads';
+import { rehypeExportToc } from './plugins/rehype-export-toc';
+
+// Vite's dep scanner can't parse .mdx, so components that posts import are
+// invisible to it and their deps get discovered mid-request. In the SSR env
+// that re-optimization leaves a stale React copy and SSR falls back to client
+// rendering. Scanning the demos directly finds them up front.
+const POST_COMPONENT_ENTRIES = ['src/components/demos/**/*.tsx'];
 
 const config = defineConfig({
   test: {
@@ -215,6 +224,10 @@ const config = defineConfig({
       },
     ],
   },
+  optimizeDeps: { entries: POST_COMPONENT_ENTRIES },
+  environments: {
+    ssr: { optimizeDeps: { entries: POST_COMPONENT_ENTRIES } },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -226,7 +239,8 @@ const config = defineConfig({
     ...(process.env.VITEST
       ? []
       : [cloudflare({ viteEnvironment: { name: 'ssr' } })]),
-    devtools(),
+    // Explicit: production must never ship the devtools rendered in __root.
+    devtools({ removeDevtoolsOnBuild: true }),
     tailwindcss(),
     mdx({
       remarkPlugins: [remarkFrontmatter, remarkGfm],
@@ -242,10 +256,19 @@ const config = defineConfig({
             defaultLang: 'text',
           },
         ],
+        rehypeExportToc,
       ],
     }),
-    tanstackStart(),
+    tanstackStart({
+      prerender: {
+        enabled: true,
+        crawlLinks: true,
+        failOnError: true,
+      },
+    }),
     contentCollections(),
+    postPreloads(),
+    ogImages(),
     viteReact(),
     babel({ presets: [reactCompilerPreset()] }),
   ]),
