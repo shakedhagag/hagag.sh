@@ -18,10 +18,8 @@ export function fontPreload(href: string) {
   };
 }
 
-export function shareMeta(
-  card: ShareCard,
-  { type = 'website' }: { type?: 'website' | 'article' } = {}
-) {
+export function shareMeta(card: ShareCard) {
+  const type = card.kind === 'post' ? 'article' : 'website';
   const image = absoluteUrl(ogImagePath(card));
   return [
     { title: documentTitle(card.title) },
@@ -36,14 +34,18 @@ export function shareMeta(
     { property: 'og:image:height', content: String(OG_IMAGE_HEIGHT) },
     { property: 'og:image:alt', content: card.title },
     { name: 'twitter:card', content: 'summary_large_image' },
-    ...(type === 'article' && card.date
+    ...(card.kind === 'post' && card.date
       ? [{ property: 'article:published_time', content: card.date }]
       : []),
   ];
 }
 
+function dropTrailingSlash(pathname: string) {
+  return pathname.replace(/(.)\/$/, '$1');
+}
+
 export function canonical(pathname: string) {
-  const url = absoluteUrl(pathname.replace(/(.)\/$/, '$1'));
+  const url = absoluteUrl(dropTrailingSlash(pathname));
   return {
     meta: [{ property: 'og:url', content: url }],
     links: [{ rel: 'canonical', href: url }],

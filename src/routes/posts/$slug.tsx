@@ -2,7 +2,7 @@ import geistMonoFont from '@fontsource/geist-mono/files/geist-mono-latin-400-nor
 import { createFileRoute, notFound } from '@tanstack/react-router';
 import { format } from 'date-fns';
 import { Suspense, use } from 'react';
-import postPreloads from 'virtual:post-preloads';
+import ssrPostPreloads from 'virtual:ssr-post-preloads';
 import { BlogToc } from '@/components/blog-toc';
 import { BottomBlurGradientMask } from '@/components/bottom-blur-gradient-mask';
 import { mdxComponents } from '@/components/mdx-components';
@@ -30,7 +30,7 @@ export const Route = createFileRoute('/posts/$slug')({
       card: postCard(post),
       post,
       toc,
-      preloads: postPreloads[slug] ?? [],
+      preloads: ssrPostPreloads[slug] ?? [],
     };
   },
   head: ({ loaderData }) => {
@@ -39,7 +39,7 @@ export const Route = createFileRoute('/posts/$slug')({
       return { meta: shareMeta(loaderData.card) };
 
     return {
-      meta: shareMeta(loaderData.card, { type: 'article' }),
+      meta: shareMeta(loaderData.card),
       links: [
         fontPreload(geistMonoFont),
         ...loaderData.preloads.map(href => ({ rel: 'modulepreload', href })),
@@ -67,7 +67,7 @@ function BlogPostOrGroup() {
         <h2 className="text-sm leading-loose font-semibold tracking-wider text-card-foreground uppercase">
           {data.card.title}
         </h2>
-        <div className="relative top-5 flex flex-col gap-8">
+        <div className="relative inset-bs-5 flex flex-col gap-8">
           {data.posts.map(post => (
             <PostListItem key={post.slug} post={post} />
           ))}
@@ -81,7 +81,7 @@ function BlogPostOrGroup() {
   return (
     <>
       <BlogToc items={data.toc} />
-      <article className="mb-10">
+      <article className="mbe-10">
         <div className="flex flex-col">
           <h1
             className="text-3xl font-semibold text-card-foreground [view-transition-name:var(--post-title-transition)]"
@@ -90,13 +90,13 @@ function BlogPostOrGroup() {
             {post.title}
           </h1>
           <p
-            className="mt-2 mb-4 text-left text-sm text-muted-foreground [view-transition-name:var(--post-date-transition)]"
+            className="mbs-2 mbe-4 text-start text-sm text-muted-foreground [view-transition-name:var(--post-date-transition)]"
             style={getPostDateTransitionStyle(post.slug)}
           >
             {format(new Date(post.date), 'MMMM d, yyyy')}
           </p>
         </div>
-        <div className="markdown prose mt-10 prose-blog">
+        <div className="markdown prose mbs-10 prose-blog">
           <Suspense fallback={null}>
             <PostBody slug={post.slug} />
           </Suspense>

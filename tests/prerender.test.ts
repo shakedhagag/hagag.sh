@@ -8,10 +8,10 @@ import { allShareCards, ogImagePath, SITE_CARD } from '@/lib/share-cards';
 const ROOT = join(import.meta.dirname, '..');
 const OUT_DIR = join(ROOT, 'dist/client');
 
-const pages = allShareCards(allPosts).filter(card => card !== SITE_CARD);
+const pages = allShareCards(allPosts).filter(card => card.kind !== 'site');
 
-function readPage(id: string) {
-  const file = join(OUT_DIR, 'posts', encodeURIComponent(id), 'index.html');
+function readPage(slug: string) {
+  const file = join(OUT_DIR, 'posts', encodeURIComponent(slug), 'index.html');
   expect(existsSync(file), `missing ${relative(ROOT, file)}`).toBe(true);
   return readFileSync(file, 'utf8');
 }
@@ -21,21 +21,21 @@ describe('prerendered pages', () => {
     expect(existsSync(OUT_DIR)).toBe(true);
   });
 
-  it.each(pages)('$id is server-rendered', card => {
-    const html = readPage(card.id);
+  it.each(pages)('$slug is server-rendered', card => {
+    const html = readPage(card.slug);
     expect(
       html.includes('Switched to client rendering'),
-      `${card.id} fell back to client rendering`
+      `${card.slug} fell back to client rendering`
     ).toBe(false);
 
-    const heading = card.date ? 'h1' : 'h2';
+    const heading = card.kind === 'post' ? 'h1' : 'h2';
     const text = new RegExp(`<${heading}[^>]*>([^<]*)</${heading}>`).exec(
       html
     )?.[1];
     expect(text).toBe(escapeHtml(card.title));
   });
 
-  it.each([SITE_CARD, ...pages])('$id has an OG image', card => {
+  it.each([SITE_CARD, ...pages])('$slug has an OG image', card => {
     expect(existsSync(join(OUT_DIR, ogImagePath(card)))).toBe(true);
   });
 });

@@ -1,9 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
-  "entry": [
-    "src/blog/**/*.mdx",
-    "content-collections.ts"
-  ],
+  "entry": ["content-collections.ts"],
   "project": ["src/**/*.{ts,tsx,css,mdx}", "plugins/**/*.ts", "tests/**/*.ts"],
   "tanstack-router": true,
   "vite": true,

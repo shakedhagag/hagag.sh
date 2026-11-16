@@ -28,7 +28,7 @@ const MANUAL_SCROLL_EVENTS = ['wheel', 'touchmove', 'keydown'] as const;
 export function BlogToc({ items }: { items: Array<TocItem> }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const pickedId = useRef<string | null>(null);
+  const heldUntilManualScroll = useRef<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,14 +37,14 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
     let frame = 0;
     const update = () => {
       frame = 0;
-      if (!pickedId.current) setActiveId(getActiveId(items));
+      if (!heldUntilManualScroll.current) setActiveId(getActiveId(items));
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
     const release = () => {
-      if (!pickedId.current) return;
-      pickedId.current = null;
+      if (!heldUntilManualScroll.current) return;
+      heldUntilManualScroll.current = null;
       schedule();
     };
 
@@ -68,7 +68,7 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
     const heading = document.getElementById(id);
     if (!heading) return;
 
-    pickedId.current = id;
+    heldUntilManualScroll.current = id;
     setActiveId(id);
 
     const reduceMotion = window.matchMedia(
@@ -100,9 +100,9 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
     <>
       <nav
         aria-label="Table of contents"
-        className="fixed top-1/2 left-8 z-20 hidden max-h-[70vh] w-56 -translate-y-1/2 overflow-y-auto pr-3 xl:block"
+        className="fixed inset-bs-1/2 inset-s-8 z-20 hidden max-h-[70dvh] w-56 -translate-y-1/2 overflow-y-auto overscroll-contain pe-3 xl:block"
       >
-        <p className="mb-3 text-xs font-medium tracking-widest text-muted-foreground uppercase">
+        <p className="mbe-3 text-xs font-medium tracking-widest text-muted-foreground uppercase">
           On this page
         </p>
         <ul className="space-y-1">
@@ -114,8 +114,8 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
                 <a
                   href={`#${item.id}`}
                   className={cn(
-                    'block text-sm transition-colors duration-150 motion-reduce:transition-none',
-                    item.level === 3 && 'pl-3',
+                    'block text-sm transition-colors duration-150 active:text-foreground',
+                    item.level === 3 && 'ps-3',
                     isActive
                       ? 'text-foreground'
                       : 'text-muted-foreground hover:text-foreground'
@@ -134,16 +134,19 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
       </nav>
 
       <Drawer.Root open={mobileOpen} onOpenChange={setMobileOpen}>
-        <Drawer.Trigger className="fixed right-4 bottom-4 z-120 rounded-full border border-border/70 bg-background/95 px-3 py-2 text-lg font-medium text-foreground shadow-sm backdrop-blur xl:hidden">
+        <Drawer.Trigger
+          aria-label="Table of contents"
+          className="fixed inset-be-4 inset-e-4 z-120 rounded-full border border-border/70 bg-background/95 px-3 py-2 text-lg font-medium text-foreground shadow-sm backdrop-blur after:absolute after:inset-[min(0px,(100%-44px)/2)] active:scale-[0.97] motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-out xl:hidden"
+        >
           <ListIcon />
         </Drawer.Trigger>
         <Drawer.Portal>
           <Drawer.Backdrop className="fixed inset-0 z-30 bg-black/45 data-ending-style:opacity-0 data-starting-style:opacity-0 xl:hidden" />
-          <Drawer.Popup className="fixed inset-x-0 bottom-0 z-40 max-h-[75vh] rounded-t-md border border-border/70 bg-background p-4 pb-6 shadow-xl data-ending-style:translate-y-full data-starting-style:translate-y-full xl:hidden">
-            <Drawer.Title className="mb-3 text-xs font-medium tracking-widest text-muted-foreground uppercase">
+          <Drawer.Popup className="fixed inset-x-0 inset-be-0 z-40 flex max-h-[75dvh] flex-col rounded-ss-md rounded-se-md border border-border/70 bg-background p-4 pbe-6 shadow-xl data-ending-style:translate-y-full data-starting-style:translate-y-full xl:hidden">
+            <Drawer.Title className="mbe-3 flex-none text-xs font-medium tracking-widest text-muted-foreground uppercase">
               On this page
             </Drawer.Title>
-            <ul className="max-h-[60vh] space-y-2 overflow-y-auto pr-1">
+            <ul className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain pe-1">
               {items.map(item => {
                 const isActive = activeId === item.id;
 
@@ -152,8 +155,8 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
                     <button
                       type="button"
                       className={cn(
-                        'block w-full text-left text-sm transition-colors duration-150 motion-reduce:transition-none',
-                        item.level === 3 && 'pl-3',
+                        'block w-full text-start text-sm transition-colors duration-150 active:text-foreground',
+                        item.level === 3 && 'ps-3',
                         isActive
                           ? 'text-foreground'
                           : 'text-muted-foreground hover:text-foreground'

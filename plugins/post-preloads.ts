@@ -1,6 +1,6 @@
 import type { Plugin, Rolldown } from 'vite-plus';
 
-const VIRTUAL_ID = 'virtual:post-preloads';
+const VIRTUAL_ID = 'virtual:ssr-post-preloads';
 const RESOLVED_ID = `\0${VIRTUAL_ID}`;
 const POST_MODULE = /\/src\/blog\/(.+)\.mdx$/;
 

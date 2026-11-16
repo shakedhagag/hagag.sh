@@ -2,6 +2,13 @@
 import { defineCollection, defineConfig } from '@content-collections/core';
 import { z } from 'zod';
 
+function withoutBody<T extends { content: string; _meta: { path: string } }>({
+  content: _content,
+  ...post
+}: T) {
+  return { ...post, slug: post._meta.path };
+}
+
 const posts = defineCollection({
   name: 'posts',
   directory: './src/blog',
@@ -13,10 +20,7 @@ const posts = defineCollection({
     spoiler: z.string(),
     group: z.string().optional(),
   }),
-  transform: async ({ content: _content, ...post }) => ({
-    ...post,
-    slug: post._meta.path,
-  }),
+  transform: async post => withoutBody(post),
 });
 
 export default defineConfig({

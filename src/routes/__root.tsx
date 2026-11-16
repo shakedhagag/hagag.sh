@@ -23,6 +23,10 @@ export const Route = createRootRoute({
         ...shareMeta(SITE_CARD),
         ...page.meta,
         {
+          name: 'color-scheme',
+          content: 'dark',
+        },
+        {
           name: 'apple-mobile-web-app-title',
           content: 'shagag',
         },
@@ -65,11 +69,11 @@ export const Route = createRootRoute({
 
   shellComponent: RootDocument,
   notFoundComponent: () => (
-    <main className="mx-auto max-w-2xl px-6 py-24">
+    <main className="content-grid py-24 [--content:39rem] [--gutter:1.5rem]">
       <h1 className="text-3xl font-semibold text-card-foreground">
         Page not found
       </h1>
-      <p className="mt-3 text-muted-foreground">
+      <p className="mbs-3 text-muted-foreground">
         The page you are looking for does not exist.
       </p>
     </main>

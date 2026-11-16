@@ -15,10 +15,12 @@ function collectHeadings(nodes: Array<Root['children'][number]>) {
     const el = node as Element;
     const id = el.properties.id;
 
-    if (
-      (el.tagName === 'h2' || el.tagName === 'h3') &&
-      typeof id === 'string'
-    ) {
+    if (el.tagName === 'h2' || el.tagName === 'h3') {
+      if (typeof id !== 'string') {
+        throw new TypeError(
+          `rehypeExportToc: <${el.tagName}> has no id; run rehype-slug first`
+        );
+      }
       items.push({
         id,
         label: el.children.map(textOf).join('').trim(),

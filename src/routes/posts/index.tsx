@@ -31,9 +31,9 @@ function PostsIndex() {
 
   return (
     <>
-      <blockquote className="mb-8 border-l-2 pl-4 text-lg font-semibold text-pretty text-foreground/65 italic dark:text-foreground/75">
+      <blockquote className="mbe-8 border-s-2 ps-4 text-lg font-semibold text-pretty text-foreground/65 italic dark:text-foreground/75">
         <svg
-          className="mb-2 size-4 text-muted-foreground/60"
+          className="mbe-2 size-4 text-muted-foreground/60"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
@@ -51,7 +51,7 @@ function PostsIndex() {
       <h2 className="text-sm leading-loose font-semibold tracking-wider text-foreground/45 uppercase">
         Recent Posts
       </h2>
-      <div className="relative top-5 flex flex-col gap-10">
+      <div className="relative inset-bs-5 flex flex-col gap-10">
         {groupedPosts.map((group, index) => (
           <section key={group.year} className="flex flex-col gap-4">
             <div className="flex items-center gap-3">

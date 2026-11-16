@@ -1,4 +1,4 @@
-declare module 'virtual:post-preloads' {
-  const preloads: Record<string, Array<string>>;
-  export default preloads;
+declare module 'virtual:ssr-post-preloads' {
+  const ssrPostPreloads: Record<string, Array<string>>;
+  export default ssrPostPreloads;
 }

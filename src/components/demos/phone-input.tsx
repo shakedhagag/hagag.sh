@@ -108,7 +108,7 @@ const InputComponent = ({
   return (
     <Input
       className={cn(
-        'rounded-l-none focus:z-1',
+        'rounded-s-none focus:z-1',
         variant === 'sm' && 'h-auto! py-0!',
         variant === 'lg' && 'h-auto!',
         inputClassName,
@@ -192,7 +192,7 @@ const CountrySelect = ({
           value={searchValue}
           onChange={e => setSearchValue(e.target.value)}
           showTrigger={false}
-          className="rounded-none border-0 border-input px-0 py-2.5 shadow-none ring-0! outline-none! focus-visible:border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="rounded-none border-0 border-input px-0 py-2.5 shadow-none ring-0! outline-hidden! focus-visible:border-border focus-visible:ring-0 focus-visible:ring-offset-0"
         />
         <ComboboxSeparator />
         <ComboboxEmpty className="px-4 py-2.5 text-sm">
@@ -200,7 +200,7 @@ const CountrySelect = ({
         </ComboboxEmpty>
         <ComboboxList>
           <div className="relative flex max-h-full">
-            <div className="flex max-h-[min(var(--available-height),24rem)] w-full scroll-pt-2 scroll-pb-2 flex-col overscroll-contain">
+            <div className="flex max-h-[min(var(--available-height),24rem)] w-full scroll-py-2 flex-col overscroll-contain">
               <ScrollArea className="size-full min-h-0 **:data-[slot=scroll-area-scrollbar]:m-0 [&_[data-slot=scroll-area-viewport]]:h-full [&_[data-slot=scroll-area-viewport]]:overscroll-contain">
                 {filteredCountries.map((item: CountryEntry) =>
                   item.value ? (

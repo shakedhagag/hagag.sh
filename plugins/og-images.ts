@@ -16,7 +16,7 @@ import { SITE_NAME } from '../src/lib/site';
 
 const require = createRequire(import.meta.url);
 
-const COLORS = {
+const DARK_THEME = {
   background: 'hsl(216, 16%, 6%)',
   foreground: 'hsl(210, 10%, 90%)',
   muted: 'hsl(210, 6%, 62%)',
@@ -60,13 +60,13 @@ function cardHtml(card: ShareCard) {
   const footer = card.date ? format(new Date(card.date), 'MMMM d, yyyy') : '';
 
   return `
-<div style="display:flex;flex-direction:column;justify-content:space-between;width:100%;height:100%;padding:72px 80px;background-color:${COLORS.background};background-image:radial-gradient(circle at 100% 0%, hsla(280, 100%, 85%, 0.16), transparent 55%);color:${COLORS.foreground};font-family:Manrope">
-  <div style="display:flex;font-size:34px;font-weight:800;color:${COLORS.accent}">${SITE_NAME}</div>
+<div style="display:flex;flex-direction:column;justify-content:space-between;width:100%;height:100%;padding:72px 80px;background-color:${DARK_THEME.background};background-image:radial-gradient(circle at 100% 0%, hsla(280, 100%, 85%, 0.16), transparent 55%);color:${DARK_THEME.foreground};font-family:Manrope">
+  <div style="display:flex;font-size:34px;font-weight:800;color:${DARK_THEME.accent}">${SITE_NAME}</div>
   <div style="display:flex;flex-direction:column;gap:24px">
     <div style="display:flex;font-family:Inter;font-size:${titleSize}px;font-weight:600;line-height:1.1;letter-spacing:-1.5px">${escapeHtml(card.title)}</div>
-    <div style="display:flex;font-size:32px;line-height:1.35;color:${COLORS.muted}">${escapeHtml(card.description)}</div>
+    <div style="display:flex;font-size:32px;line-height:1.35;color:${DARK_THEME.muted}">${escapeHtml(card.description)}</div>
   </div>
-  <div style="display:flex;font-size:26px;letter-spacing:2px;color:${COLORS.muted}">${footer}</div>
+  <div style="display:flex;font-size:26px;letter-spacing:2px;color:${DARK_THEME.muted}">${footer}</div>
 </div>`;
 }
 
@@ -92,7 +92,7 @@ export function ogImages(): Plugin {
         if (!id) return next();
         try {
           const cards = allShareCards(await loadPosts(root));
-          const card = cards.find(c => c.id === decodeURIComponent(id));
+          const card = cards.find(c => c.slug === decodeURIComponent(id));
           if (!card) return next();
           res.setHeader('Content-Type', 'image/png');
           res.end(await renderCard(card));

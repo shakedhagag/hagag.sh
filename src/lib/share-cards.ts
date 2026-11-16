@@ -2,7 +2,8 @@ import type { Post } from 'content-collections';
 import { SITE_DESCRIPTION, SITE_NAME } from './site';
 
 export type ShareCard = {
-  id: string;
+  kind: 'site' | 'post' | 'group';
+  slug: string;
   title: string;
   description: string;
   date?: string;
@@ -11,7 +12,8 @@ export type ShareCard = {
 type CardPost = Pick<Post, 'slug' | 'title' | 'spoiler' | 'date' | 'group'>;
 
 export const SITE_CARD: ShareCard = {
-  id: 'site',
+  kind: 'site',
+  slug: 'site',
   title: SITE_NAME,
   description: SITE_DESCRIPTION,
 };
@@ -22,7 +24,8 @@ function formatGroupName(group: string) {
 
 export function postCard(post: CardPost): ShareCard {
   return {
-    id: post.slug,
+    kind: 'post',
+    slug: post.slug,
     title: post.title,
     description: post.spoiler,
     date: post.date,
@@ -30,12 +33,13 @@ export function postCard(post: CardPost): ShareCard {
 }
 
 export function groupCard(group: string, posts: Array<CardPost>): ShareCard {
-  const entry = posts.find(post => post.slug === group);
+  const seriesEntry = posts.find(post => post.slug === group);
   const count = posts.filter(post => post.group === group).length;
   return {
-    id: group,
+    kind: 'group',
+    slug: group,
     title: formatGroupName(group),
-    description: entry?.spoiler ?? `A series of ${count} posts.`,
+    description: seriesEntry?.spoiler ?? `A series of ${count} posts.`,
   };
 }
 
@@ -51,5 +55,5 @@ export function allShareCards(posts: Array<CardPost>): Array<ShareCard> {
 }
 
 export function ogImagePath(card: ShareCard) {
-  return `/og/${card.id}.png`;
+  return `/og/${card.slug}.png`;
 }

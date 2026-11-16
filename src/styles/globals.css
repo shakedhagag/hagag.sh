@@ -7,76 +7,56 @@
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
+/* Hover styles only on devices that can hover with a precise pointer, so a
+   tap never leaves one stuck. Tailwind's default checks (hover: hover) only. */
+@custom-variant hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @slot;
+    }
+  }
+}
 @source "/../components/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: hsl(280deg 100% 85%);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  color-scheme: light;
+  --background: light-dark(oklch(1 0 none), oklch(0.1667 0.0069 258.37));
+  --foreground: light-dark(oklch(0.145 0 none), oklch(0.9222 0.0044 247.87));
+  --card: light-dark(oklch(1 0 none), oklch(0.205 0 none));
+  --card-foreground: light-dark(oklch(0.145 0 none), oklch(0.985 0 none));
+  --popover: light-dark(oklch(1 0 none), oklch(0.205 0 none));
+  --popover-foreground: light-dark(oklch(0.145 0 none), oklch(0.985 0 none));
+  --primary: light-dark(oklch(0.205 0 none), oklch(0.922 0 none));
+  --primary-foreground: light-dark(oklch(0.985 0 none), oklch(0.205 0 none));
+  --secondary: light-dark(oklch(0.97 0 none), oklch(0.269 0 none));
+  --secondary-foreground: light-dark(oklch(0.205 0 none), oklch(0.985 0 none));
+  --muted: light-dark(oklch(0.97 0 none), oklch(0.269 0 none));
+  --muted-foreground: light-dark(oklch(0.556 0 none), oklch(0.708 0 none));
+  --accent: light-dark(oklch(0.97 0 none), oklch(0.269 0 none));
+  --accent-foreground: oklch(0.8368 0.1172 314.13);
+  --destructive: light-dark(oklch(0.577 0.245 27.325), oklch(0.704 0.191 22.216));
+  --border: light-dark(oklch(0.922 0 none), oklch(1 0 none / 10%));
+  --input: light-dark(oklch(0.922 0 none), oklch(1 0 none / 15%));
+  --ring: light-dark(oklch(0.708 0 none), oklch(0.556 0 none));
+  --chart-1: oklch(0.87 0 none);
+  --chart-2: oklch(0.556 0 none);
+  --chart-3: oklch(0.439 0 none);
+  --chart-4: oklch(0.371 0 none);
+  --chart-5: oklch(0.269 0 none);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: light-dark(oklch(0.985 0 none), oklch(0.205 0 none));
+  --sidebar-foreground: light-dark(oklch(0.145 0 none), oklch(0.985 0 none));
+  --sidebar-primary: light-dark(oklch(0.205 0 none), oklch(0.488 0.243 264.376));
+  --sidebar-primary-foreground: oklch(0.985 0 none);
+  --sidebar-accent: light-dark(oklch(0.97 0 none), oklch(0.269 0 none));
+  --sidebar-accent-foreground: light-dark(oklch(0.205 0 none), oklch(0.985 0 none));
+  --sidebar-border: light-dark(oklch(0.922 0 none), oklch(1 0 none / 10%));
+  --sidebar-ring: light-dark(oklch(0.708 0 none), oklch(0.556 0 none));
 }
 
 .dark {
-  --background: hsl(216, 16%, 6%);
-  --foreground: hsl(210deg 10% 90%);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: hsl(280deg 100% 85%);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -123,25 +103,61 @@
   --font-mono: "Geist Mono", monospace;
 }
 
+@theme {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  :root {
+    @apply font-sans;
+    scrollbar-gutter: stable;
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
   body {
     @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
+    min-height: 100svh;
   }
   h1,
   h2,
   h3,
-  h4,
-  h5,
-  h6,
-  a,
-  p {
-    @apply font-heading wrap-break-word;
-    @apply text-pretty font-sans;
+  h4 {
+    text-wrap: balance;
+  }
+  /* Keeps the heading anchor "#" and links in Manrope inside Inter headings. */
+  :is(h1, h2, h3, h4, h5, h6, a, p) {
+    @apply font-sans;
+  }
+  :is(button, a, [role="button"]) {
+    touch-action: manipulation;
+  }
+}
+
+/*
+ * Page container. Children sit in the content column by default; give one
+ * `col-[breakout]` or `col-[full-width]` to go wider. Set the widths with
+ * `[--content:…]` and `[--gutter:…]` on the element.
+ */
+@utility content-grid {
+  --gutter: 1.25rem;
+  --content: 45.5rem;
+  --breakout: 64rem;
+
+  display: grid;
+  grid-template-columns:
+    [full-width-start] minmax(var(--gutter), 1fr)
+    [breakout-start] minmax(0, calc((var(--breakout) - var(--content)) / 2))
+    [content-start] min(100% - var(--gutter) * 2, var(--content)) [content-end]
+    minmax(0, calc((var(--breakout) - var(--content)) / 2)) [breakout-end]
+    minmax(var(--gutter), 1fr) [full-width-end];
+
+  & > * {
+    grid-column: content;
   }
 }
