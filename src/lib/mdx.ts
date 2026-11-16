@@ -8,7 +8,6 @@ export type TocItem = {
 
 export type MDXComponents = Record<string, ComponentType<any>>;
 
-/** What each compiled post exports (see src/mdx.d.ts). */
 export type MDXModule = {
   default: ComponentType<{ components?: MDXComponents }>;
   toc: Array<TocItem>;

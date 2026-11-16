@@ -33,10 +33,6 @@ function collectHeadings(nodes: Array<Root['children'][number]>) {
   return items;
 }
 
-/**
- * Adds `export const toc = [...]` to each MDX module. Must run after
- * rehype-slug so ids match the rendered headings.
- */
 export function rehypeExportToc() {
   return (tree: Root) => {
     const toc = collectHeadings(tree.children);

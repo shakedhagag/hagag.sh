@@ -4,7 +4,6 @@ const VIRTUAL_ID = 'virtual:post-preloads';
 const RESOLVED_ID = `\0${VIRTUAL_ID}`;
 const POST_MODULE = /\/src\/blog\/(.+)\.mdx$/;
 
-/** Every non-entry chunk a chunk statically imports, itself included. */
 function chunkClosure(bundle: Rolldown.OutputBundle, fileName: string) {
   const files = new Set<string>();
   const visit = (name: string) => {
@@ -22,10 +21,7 @@ function chunkClosure(bundle: Rolldown.OutputBundle, fileName: string) {
 /**
  * Posts load their MDX chunk lazily, so the client build's route manifest
  * doesn't know it. This records each post's client chunks while the client
- * environment builds and serves them to the server build (built after it) as
- * `virtual:post-preloads`, a `slug -> URLs` map the route turns into
- * <link rel="modulepreload">. Hydrating a post then doesn't wait on an extra
- * round trip for its chunk. Dev and the client bundle get an empty map.
+ * environment builds and serves them to the server build (built after it).
  */
 export function postPreloads(): Plugin {
   const preloads: Record<string, Array<string>> = {};

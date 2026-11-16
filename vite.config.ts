@@ -239,7 +239,6 @@ const config = defineConfig({
     ...(process.env.VITEST
       ? []
       : [cloudflare({ viteEnvironment: { name: 'ssr' } })]),
-    // Explicit: production must never ship the devtools rendered in __root.
     devtools({ removeDevtoolsOnBuild: true }),
     tailwindcss(),
     mdx({

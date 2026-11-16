@@ -8,7 +8,6 @@ import { allShareCards, ogImagePath, SITE_CARD } from '@/lib/share-cards';
 const ROOT = join(import.meta.dirname, '..');
 const OUT_DIR = join(ROOT, 'dist/client');
 
-// Every page under /posts/<id>: posts (they have a date) and group listings.
 const pages = allShareCards(allPosts).filter(card => card !== SITE_CARD);
 
 function readPage(id: string) {

@@ -5,8 +5,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { TocItem } from '@/lib/mdx';
 import { cn } from '@/lib/utils';
 
-// A heading becomes active once its top scrolls above this line. Kept close
-// to the top so the heading you jump to from the TOC is the one highlighted.
 const ACTIVE_LINE_PX = 100;
 
 function getActiveId(items: Array<TocItem>) {
@@ -25,15 +23,11 @@ function getActiveId(items: Array<TocItem>) {
   return active;
 }
 
-// Input that means the reader is scrolling by hand again.
 const MANUAL_SCROLL_EVENTS = ['wheel', 'touchmove', 'keydown'] as const;
 
 export function BlogToc({ items }: { items: Array<TocItem> }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  // A heading picked from the TOC stays active through the smooth scroll to
-  // it (instead of every heading on the way lighting up in turn) and after
-  // it, until the reader scrolls by hand.
   const pickedId = useRef<string | null>(null);
   const navigate = useNavigate();
 

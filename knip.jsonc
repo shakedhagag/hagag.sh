@@ -1,7 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
   "entry": [
-    // Posts import their demos; knip can't see through the import.meta.glob.
     "src/blog/**/*.mdx",
     "content-collections.ts"
   ],
@@ -10,7 +9,6 @@
   "vite": true,
   "ignoreIssues": {
     "src/routeTree.gen.ts": ["types"],
-    // shadcn-generated: keep each component's full API so re-adding one stays a clean overwrite.
     "src/components/ui/**": ["exports", "types"]
   }
 }

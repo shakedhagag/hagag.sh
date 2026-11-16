@@ -18,7 +18,6 @@ export function fontPreload(href: string) {
   };
 }
 
-/** Title, description, Open Graph and Twitter tags for a shared page. */
 export function shareMeta(
   card: ShareCard,
   { type = 'website' }: { type?: 'website' | 'article' } = {}
@@ -43,10 +42,6 @@ export function shareMeta(
   ];
 }
 
-/**
- * og:url meta plus the matching canonical link for a page, from the path the
- * router matched (trailing slash dropped, as Cloudflare serves it).
- */
 export function canonical(pathname: string) {
   const url = absoluteUrl(pathname.replace(/(.)\/$/, '$1'));
   return {

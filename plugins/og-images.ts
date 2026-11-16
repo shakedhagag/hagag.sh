@@ -16,7 +16,6 @@ import { SITE_NAME } from '../src/lib/site';
 
 const require = createRequire(import.meta.url);
 
-// Site palette (dark theme in src/styles/globals.css).
 const COLORS = {
   background: 'hsl(216, 16%, 6%)',
   foreground: 'hsl(210, 10%, 90%)',
@@ -79,11 +78,6 @@ async function renderCard(card: ShareCard) {
   });
 }
 
-/**
- * Renders one Open Graph PNG per share card (site, posts, groups) to
- * /og/<id>.png at build time, next to the prerendered pages. In dev the same
- * images are rendered on request.
- */
 export function ogImages(): Plugin {
   let root = process.cwd();
 

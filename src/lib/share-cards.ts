@@ -1,12 +1,7 @@
 import type { Post } from 'content-collections';
 import { SITE_DESCRIPTION, SITE_NAME } from './site';
 
-/**
- * Title and description of a page as it appears when shared: the OG image
- * plugin draws it and the page's <head> announces it, so both read from here.
- */
 export type ShareCard = {
-  /** Path under /og/, without extension. */
   id: string;
   title: string;
   description: string;
@@ -34,10 +29,6 @@ export function postCard(post: CardPost): ShareCard {
   };
 }
 
-/**
- * A group's card reuses the spoiler of the post that shares its slug (the
- * series entry shown on /posts), if there is one.
- */
 export function groupCard(group: string, posts: Array<CardPost>): ShareCard {
   const entry = posts.find(post => post.slug === group);
   const count = posts.filter(post => post.group === group).length;

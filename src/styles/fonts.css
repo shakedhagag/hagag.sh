@@ -1,8 +1,6 @@
 /*
  * Latin subsets only. The fontsource variable packages ship no per-subset
  * stylesheet, so these are their latin-wght rules. Geist Mono has one.
- * The same woff2 files are preloaded in src/routes/__root.tsx and
- * src/routes/posts/$slug.tsx.
  */
 @import "@fontsource/geist-mono/latin-400.css";
 

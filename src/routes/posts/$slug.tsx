@@ -17,7 +17,6 @@ import {
 } from '@/lib/utils';
 
 export const Route = createFileRoute('/posts/$slug')({
-  // Loader data is serialized into the HTML, so it carries only what renders.
   loader: async ({ params: { slug } }) => {
     const group = getGroup(slug);
     if (group) return { type: 'group' as const, ...group };

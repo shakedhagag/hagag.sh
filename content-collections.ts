@@ -13,8 +13,6 @@ const posts = defineCollection({
     spoiler: z.string(),
     group: z.string().optional(),
   }),
-  // Only metadata goes into allPosts: it ships in the client bundle, while
-  // the rendered body comes from each post's own MDX chunk.
   transform: async ({ content: _content, ...post }) => ({
     ...post,
     slug: post._meta.path,
