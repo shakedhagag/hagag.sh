@@ -100,7 +100,7 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
     <>
       <nav
         aria-label="Table of contents"
-        className="fixed inset-bs-1/2 inset-s-8 z-20 hidden max-h-[70dvh] w-56 -translate-y-1/2 overflow-y-auto overscroll-contain pe-3 xl:block"
+        className="fixed inset-s-8 inset-bs-1/2 z-20 hidden max-h-[70dvh] w-56 -translate-y-1/2 overflow-y-auto overscroll-contain pe-3 xl:block"
       >
         <p className="mbe-3 text-xs font-medium tracking-widest text-muted-foreground uppercase">
           On this page
@@ -136,7 +136,7 @@ export function BlogToc({ items }: { items: Array<TocItem> }) {
       <Drawer.Root open={mobileOpen} onOpenChange={setMobileOpen}>
         <Drawer.Trigger
           aria-label="Table of contents"
-          className="fixed inset-be-4 inset-e-4 z-120 rounded-full border border-border/70 bg-background/95 px-3 py-2 text-lg font-medium text-foreground shadow-sm backdrop-blur after:absolute after:inset-[min(0px,(100%-44px)/2)] active:scale-[0.97] motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-out xl:hidden"
+          className="fixed inset-e-4 inset-be-4 z-120 rounded-full border border-border/70 bg-background/95 px-3 py-2 text-lg font-medium text-foreground shadow-sm backdrop-blur after:absolute after:inset-[min(0px,(100%-44px)/2)] active:scale-[0.97] motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-out xl:hidden"
         >
           <ListIcon />
         </Drawer.Trigger>

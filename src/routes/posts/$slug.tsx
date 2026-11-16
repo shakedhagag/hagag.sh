@@ -96,7 +96,7 @@ function BlogPostOrGroup() {
             {format(new Date(post.date), 'MMMM d, yyyy')}
           </p>
         </div>
-        <div className="markdown prose mbs-10 prose-blog">
+        <div className="markdown mbs-10 prose prose-blog">
           <Suspense fallback={null}>
             <PostBody slug={post.slug} />
           </Suspense>
